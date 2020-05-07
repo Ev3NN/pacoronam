@@ -2,26 +2,30 @@
 #define TILE_MAP_HPP
 
 #include <SFML/Graphics.hpp>
+#include <map>
 
-class TileMap : public sf::Drawable, public sf::Transformable {
+#include "Tile.hpp"
+#include "FoodTile.hpp"
+#include "constants.hpp"
 
+class TileMap : public sf::Drawable {
+	
 	public:
-        bool load_map();
+		bool load_tiles();
 
-    private:
-        virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
-            // apply the transform
-            states.transform *= getTransform();
+		c_uint height = GRID_HEIGHT;
+		c_uint width = GRID_WIDTH;
+		Tile grid[GRID_HEIGHT][GRID_WIDTH];
 
-            // apply the tileset texture
-            states.texture = &mapTexture;
+		std::map<std::pair<uint, uint>, FoodTile> remainingFood;
 
-            // draw the vertex array
-            target.draw(mapVertices, states);
-        }
+	private:
+		virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
 
-        sf::VertexArray mapVertices;
-        sf::Texture mapTexture;
+			for(auto itr = remainingFood.begin(); itr != remainingFood.end(); ++itr) {
+				target.draw(itr->second.shape, states);
+			}
+		}
 };
 
 #endif

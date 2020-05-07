@@ -1,60 +1,39 @@
-#include "TileMap.hpp"
-#include "constants.hpp"
-
 #include <iostream>
-#include <fstream>
 
-bool TileMap::load_map() {
+#include "TileMap.hpp"
+#include "Tile.hpp"
+#include "FoodTile.hpp"
+#include "MapBuilder.hpp"
 
-	if(!mapTexture.loadFromFile(TILESET_FILENAME)) {
-		std::cout << "An error occured while loading map.\n";
+bool TileMap::load_tiles() {
+
+	std::vector<TileType> tilesetKeys = load_tileset_keys();
+	if(tilesetKeys.empty())
 		return false;
-	}
 
-	std::ifstream myFile(MAP_TEXTURE_CODES_FILENAME);
-	if(!myFile) {
-		std::cout << "Error while opening file\n";
-		return false;
-	}
-		
-	std::vector<int> mapTextureCodes = {};
+	for(std::size_t i = 0; i < GRID_HEIGHT; ++i) {
+		for(std::size_t j = 0; j < GRID_WIDTH; ++j) {
 
-	int a;
+			TileType tileKey = tilesetKeys[i * GRID_WIDTH + j];
 
-	while(myFile >> a) {
-			std::cout << a << "\n";
-			mapTextureCodes.push_back(a);
-	}
-	myFile.close();
+			if(tileKey == TREAT_TILE || tileKey == PILL_TILE) {
 
-	mapVertices.setPrimitiveType(sf::Quads);
-	mapVertices.resize(GRID_HEIGHT * GRID_WIDTH * 4);
+				FoodTile currTile(tileKey, i, j);
 
-	for(size_t i = 0; i < GRID_HEIGHT; ++i) {
-		for(size_t j = 0; j < GRID_WIDTH; ++j) {
-			
-			char tileTextureCode = mapTextureCodes[i * GRID_WIDTH + j];
-			if(i == 3) {
-				std:: cout << "i, j, code: " << i << " " << j << " " << mapTextureCodes[i * GRID_WIDTH + j] << "\n";
+
+
+
+				grid[i][j] = currTile;
+
+				std::pair<uint, uint> currPair(i, j);
+				remainingFood.insert(std::pair<std::pair<uint, uint>, FoodTile>(currPair, currTile));
 			}
-
-			sf::Vertex* quad = &mapVertices[(i * GRID_WIDTH + j) * 4];
-
-			quad[0].position = sf::Vector2f(j * CELL_SIZE, i * CELL_SIZE);
-			quad[1].position = sf::Vector2f((j + 1) * CELL_SIZE, i * CELL_SIZE);
-			quad[2].position = sf::Vector2f((j + 1) * CELL_SIZE, (i + 1) * CELL_SIZE);
-			quad[3].position = sf::Vector2f(j * CELL_SIZE, (i + 1) * CELL_SIZE);
-
-			int textureWidth = tileTextureCode % 5;
-			int textureHeight = tileTextureCode / 5;
-
-			quad[0].texCoords = sf::Vector2f(textureWidth * TILE_IMAGE_SIZE, textureHeight * TILE_IMAGE_SIZE);
-			quad[1].texCoords = sf::Vector2f((textureWidth + 1) * TILE_IMAGE_SIZE, textureHeight * TILE_IMAGE_SIZE);
-			quad[2].texCoords = sf::Vector2f((textureWidth + 1) * TILE_IMAGE_SIZE, (textureHeight + 1) * TILE_IMAGE_SIZE);
-			quad[3].texCoords = sf::Vector2f(textureWidth * TILE_IMAGE_SIZE, (textureHeight + 1) * TILE_IMAGE_SIZE);
-
+				
+			else
+				grid[i][j] = Tile(tilesetKeys[i * GRID_WIDTH + j]);
 		}
 	}
 
 	return true;
 }
+

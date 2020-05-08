@@ -18,7 +18,7 @@ class Monster : public Character {
 
 	public:
 		Monster(std::string name);
-
+		
 		void update();
 
 		void render(sf::RenderTarget* target);

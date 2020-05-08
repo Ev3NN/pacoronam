@@ -21,15 +21,15 @@ void Game::init_player() {
 }
 
 void Game::init_monsters() {
-	Monster* blinky = new Monster("Blinky");
-	Monster* pinky = new Monster("Pinky");
-	Monster* inky = new Monster("Inky");
-	Monster* clyde = new Monster("Clyde");
+	Monster blinky("Blinky");
+	Monster pinky("Pinky");
+	Monster inky("Inky");
+	Monster clyde("Clyde");
 
-	monsters.insert(std::pair<std::string, Monster*> ("Blinky", blinky));
-	monsters.insert(std::pair<std::string, Monster*> ("Pinky", pinky));
-	monsters.insert(std::pair<std::string, Monster*> ("Inky", inky));
-	monsters.insert(std::pair<std::string, Monster*> ("Clyde", clyde));
+	monsters.insert(std::pair<std::string, Monster> ("Blinky", blinky));
+	monsters.insert(std::pair<std::string, Monster> ("Pinky", blinky));
+	monsters.insert(std::pair<std::string, Monster> ("Inky", blinky));
+	monsters.insert(std::pair<std::string, Monster> ("Clyde", blinky));
 }
 
 // Public functions
@@ -45,6 +45,7 @@ Game::Game() {
 Game::~Game() {
 	delete window;
 	delete grid;
+	delete player;
 }
 
 void Game::run() {
@@ -91,11 +92,11 @@ void Game::update_input() {
 void Game::update() {
 
 	this->update_input();
-	this->grid->update();
-	this->player->update();
+	grid->update();
+	player->update();
 	
 	for(auto &monster : monsters)
-		monster.second->update();
+		monster.second.update();
 }
 
 void Game::render() {
@@ -105,7 +106,7 @@ void Game::render() {
 	player->render(window);
 
 	for(auto &monster : monsters)
-		monster.second->render(window);
+		monster.second.render(window);
 
 	window->display();
 }

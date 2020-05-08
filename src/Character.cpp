@@ -3,6 +3,9 @@
 
 // Public functions
 
-Character::Character(float movementSpeed) : movementSpeed(movementSpeed),
-                                            dirX(0.0f), dirY(0.0f) {}
+Character::Character(float movementSpeed) : movementSpeed(movementSpeed), dirX(0.0f), 
+                                            dirY(0.0f), aboveTile(nullptr) {}
 
+Character::~Character() {
+    delete aboveTile;
+}

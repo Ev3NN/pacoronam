@@ -16,6 +16,7 @@ class Character {
 
 	public:
 		Character(float movementSpeed);
+		virtual ~Character();
 		
 		virtual void update() = 0;
 

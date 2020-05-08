@@ -15,10 +15,10 @@ class Game {
 		sf::RenderWindow* window;
 
 		// Grid
-		Grid* grid;
+		Grid *grid;
 		Player* player;
 		// Map of monsters
-		std::map<std::string, Monster*> monsters;
+		std::map<std::string, Monster> monsters;
 		
 		// Private functions
 		void init_window();

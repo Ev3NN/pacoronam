@@ -5,14 +5,14 @@
 #include "constants.hpp"
 
 class Tile {
+	protected:
+		TileType tileType;
+		uint pxSize;
+		float posX, posY;		
+
 	public:
 		Tile();
 		Tile(TileType tileType);
-
-		TileType tileType;
-		c_uint size = CELL_SIZE;
-
-		Tile& operator = (const Tile& other);
 };
 
-#endif
+#endif // !TILE_HPP

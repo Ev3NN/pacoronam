@@ -2,23 +2,24 @@
 #define FOOD_TILE_HPP
 
 #include <SFML/Graphics.hpp>
+
 #include "constants.hpp"
 #include "Tile.hpp"
 
 class FoodTile : public Tile {
-
-	public:
-		FoodTile();
-		FoodTile(TileType tileType, uint height, uint width);
+	private:
 		sf::CircleShape shape;
 
-	private:
-		bool isInfected;
+		// Private functions
+		void init_shape();
 
-		bool is_infected();
+	public:
+		// Constructor
+		FoodTile();
+		FoodTile(TileType tileType, uint cols, uint rows);
 
-		
-
+		// Public functions
+		void render(sf::RenderTarget* target);
 };
 
-#endif
+#endif // !FOOD_TILE_HPP

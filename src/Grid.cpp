@@ -97,7 +97,7 @@ void Grid::init_map() {
 				remainingFood.push_back(currTile);
 			}
 			else
-				map[i][j] = Tile(tilesetKeys[i * cols + j]);
+				map[i][j] = Tile(tilesetKeys[i * cols + j], i, j);
 		}
 }
 

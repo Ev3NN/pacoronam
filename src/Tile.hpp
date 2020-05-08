@@ -7,12 +7,15 @@
 class Tile {
 	protected:
 		TileType tileType;
+		uint rows, cols;
 		uint pxSize;
-		float posX, posY;		
 
 	public:
+
+		sf::Vector2f get_tile_centre();
+
 		Tile();
-		Tile(TileType tileType);
+		Tile(TileType tileType, uint rows, uint cols);
 };
 
 #endif // !TILE_HPP

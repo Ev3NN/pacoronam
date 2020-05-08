@@ -1,5 +1,5 @@
 build/main.o: main.cpp Game.hpp Grid.hpp constants.hpp FoodTile.hpp \
-  Tile.hpp
+  Tile.hpp Player.hpp Character.hpp Monster.hpp
 
 Game.hpp:
 
@@ -10,3 +10,9 @@ constants.hpp:
 FoodTile.hpp:
 
 Tile.hpp:
+
+Player.hpp:
+
+Character.hpp:
+
+Monster.hpp:

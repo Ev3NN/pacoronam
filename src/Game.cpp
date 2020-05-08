@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <utility>
 
 #include "constants.hpp"
 #include "Game.hpp"
@@ -15,12 +16,30 @@ void Game::init_grid() {
 	grid = new Grid();
 }
 
+void Game::init_player() {
+	player = new Player();
+}
+
+void Game::init_monsters() {
+	Monster* blinky = new Monster("Blinky");
+	Monster* pinky = new Monster("Pinky");
+	Monster* inky = new Monster("Inky");
+	Monster* clyde = new Monster("Clyde");
+
+	monsters.insert(std::pair<std::string, Monster*> ("Blinky", blinky));
+	monsters.insert(std::pair<std::string, Monster*> ("Pinky", pinky));
+	monsters.insert(std::pair<std::string, Monster*> ("Inky", inky));
+	monsters.insert(std::pair<std::string, Monster*> ("Clyde", clyde));
+}
+
 // Public functions
 
 // Constructor
 Game::Game() {
 	this->init_window();
 	this->init_grid();
+	this->init_player();
+	this->init_monsters();	
 }
 
 Game::~Game() {
@@ -73,12 +92,20 @@ void Game::update() {
 
 	this->update_input();
 	this->grid->update();
+	this->player->update();
+	
+	for(auto &monster : monsters)
+		monster.second->update();
 }
 
 void Game::render() {
 	window->clear();
 
 	grid->render(window);
+	player->render(window);
+
+	for(auto &monster : monsters)
+		monster.second->render(window);
 
 	window->display();
 }

@@ -12,7 +12,7 @@ static c_uint CELL_SIZE = 26;
 static c_uint GRID_COLS = 28;
 static c_uint GRID_ROWS = 36;
 
-static c_bool DEBUG = true; 
+static c_bool DEBUG = false; 
 static c_string TILESET_KEYS_FILENAME = "assets/tileset_keys.txt";
 static c_string STD_TILESET_FILENAME = "assets/tileset.png";
 static c_string DEBUG_TILESET_FILENAME = "assets/debug_tileset.png";

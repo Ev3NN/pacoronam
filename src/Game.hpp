@@ -2,8 +2,11 @@
 #define GAME_HPP
 
 #include <SFML/Graphics.hpp>
+#include <map>
 
 #include "Grid.hpp"
+#include "Player.hpp"
+#include "Monster.hpp"
 
 class Game {
 
@@ -13,10 +16,15 @@ class Game {
 
 		// Grid
 		Grid* grid;
+		Player* player;
+		// Map of monsters
+		std::map<std::string, Monster*> monsters;
 		
 		// Private functions
 		void init_window();
 		void init_grid();	
+		void init_player();
+		void init_monsters();
 
 	public:
 		Game();

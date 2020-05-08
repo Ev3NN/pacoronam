@@ -11,7 +11,6 @@
 class Grid {
 
 	private:
-
 		// Size
 		c_uint rows;
 		c_uint cols;

@@ -25,6 +25,7 @@ Game::Game() {
 
 Game::~Game() {
 	delete window;
+	delete grid;
 }
 
 void Game::run() {
@@ -41,10 +42,15 @@ void Game::update_poll_events() {
 	sf::Event e;
 
 	while(this->window->pollEvent(e)) {
-		if(e.type == sf::Event::Closed)
-			this->window->close();
-		if(e.KeyPressed && e.key.code == sf::Keyboard::Escape)
-			this->window->close();
+
+		switch(e.type) {
+			case sf::Event::Closed:
+				window->close();
+				break;
+
+			default:
+				break;
+		}
 	}
 }
 

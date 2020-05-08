@@ -90,19 +90,18 @@ void Grid::init_map() {
 			TileType tileKey = tilesetKeys[i * cols + j];
 
 			if(tileKey == TREAT_TILE || tileKey == PILL_TILE) {
-				// Adds a food tile in the map remainingFood
+				// Adds a food tile in the map and in remainingFood
 				FoodTile currTile(tileKey, i, j);
-				map[i][j] = currTile;
 
-				std::pair<uint, uint> currPair(i, j);
-				remainingFood.insert(std::pair<std::pair<uint, uint>, FoodTile>(currPair, currTile));
+				map[i][j] = currTile;
+				remainingFood.push_back(currTile);
 			}
 			else
 				map[i][j] = Tile(tilesetKeys[i * cols + j]);
 		}
 }
 
-// Public functinos
+// Public functions
 
 // Constructors
 Grid::Grid() : rows(GRID_ROWS), cols(GRID_COLS) {
@@ -117,9 +116,9 @@ Grid::Grid() : rows(GRID_ROWS), cols(GRID_COLS) {
 
 void Grid::update() {
 
-	// Modifier map en fonction de remainingFood en autres
+	// Modifier map en fonction de remainingFood entre autres
 
-	
+
 }
 
 void Grid::render(sf::RenderTarget* target) {
@@ -127,5 +126,5 @@ void Grid::render(sf::RenderTarget* target) {
 	target->draw(vertices, &texture);
 
 	for(auto &food : remainingFood)
-		food.second.render(target);
+		food.render(target);
 }

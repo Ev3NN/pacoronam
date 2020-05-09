@@ -1,13 +1,23 @@
 #include "Tile.hpp"
 
-Tile::Tile() {}
-Tile::Tile(TileType tileType, uint rows, uint cols) : tileType(tileType), rows(rows),
-                                                        cols(cols), pxSize(CELL_SIZE) {}
+void Tile::init_variables(c_TileType tileType, c_uint rows, c_uint cols) {
+	this->tileType = tileType;
+	this->rows = rows;
+	this->cols = cols;
+}
 
-sf::Vector2f Tile::get_tile_centre() {
+Tile::Tile() {	
+	init_variables();
+}
 
-    float centreX = (cols + 0.5) * pxSize;
-	float centreY = (rows + 0.5) * pxSize;
+Tile::Tile(c_TileType& tileType, c_uint& rows, c_uint& cols) {
+	init_variables(tileType, rows, cols);
+}
 
-    return sf::Vector2f(centreX, centreY);
+sf::Vector2f Tile::get_tile_centre() const {
+
+	float centreX = (cols + 0.5f) * pxSize;
+	float centreY = (rows + 0.5f) * pxSize;
+
+	return sf::Vector2f(centreX, centreY);
 }

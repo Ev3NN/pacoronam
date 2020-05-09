@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "constants.hpp"
 #include "Character.hpp"
 
 class Player : public Character {
@@ -17,6 +18,8 @@ class Player : public Character {
 		Player();
 
 		void update();
+
+		void move(c_float& dirX, c_float& dirY);
 
 		void render(sf::RenderTarget* target);
 

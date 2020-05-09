@@ -11,15 +11,13 @@ void FoodTile::init_shape() {
 	shape.setFillColor(sf::Color(247, 192, 158));
 	shape.setOrigin(shape.getRadius(), shape.getRadius());
 
-	float centreX = (cols + 0.5) * CELL_SIZE;
-	float centreY = (rows + 0.5) * CELL_SIZE;
+	float centreX = (cols + 0.5f) * CELL_SIZE;
+	float centreY = (rows + 0.5f) * CELL_SIZE;
 
 	shape.setPosition(centreX, centreY);
 }
 
-FoodTile::FoodTile() : Tile() {}
-
-FoodTile::FoodTile(TileType tileType, uint rows, uint cols) : Tile(tileType, rows, cols) {
+FoodTile::FoodTile(c_TileType& tileType, c_uint& rows, c_uint& cols) : Tile(tileType, rows, cols) {
 	init_shape();
 }
 

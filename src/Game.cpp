@@ -26,10 +26,10 @@ void Game::init_monsters() {
 	Monster inky("Inky");
 	Monster clyde("Clyde");
 
-	monsters.insert(std::pair<std::string, Monster> ("Blinky", blinky));
-	monsters.insert(std::pair<std::string, Monster> ("Pinky", blinky));
-	monsters.insert(std::pair<std::string, Monster> ("Inky", blinky));
-	monsters.insert(std::pair<std::string, Monster> ("Clyde", blinky));
+	monsters.insert(std::pair<string, Monster> ("Blinky", blinky));
+	monsters.insert(std::pair<string, Monster> ("Pinky", pinky));
+	monsters.insert(std::pair<string, Monster> ("Inky", inky));
+	monsters.insert(std::pair<string, Monster> ("Clyde", clyde));
 }
 
 // Public functions
@@ -39,7 +39,7 @@ Game::Game() {
 	this->init_window();
 	this->init_grid();
 	this->init_player();
-	this->init_monsters();	
+	this->init_monsters();
 }
 
 Game::~Game() {
@@ -49,6 +49,7 @@ Game::~Game() {
 }
 
 void Game::run() {
+
 	while(this->window->isOpen()) {
 		this->update_poll_events();
 
@@ -77,16 +78,16 @@ void Game::update_poll_events() {
 void Game::update_input() {
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-		std::cout << "Left.\n";
+		player->move(-1.f, 0.f);
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-		std::cout << "Up.\n";
+		player->move(0.f, -1.f);
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-		std::cout << "Right.\n";
+		player->move(1.f, 0.f);
 		
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-		std::cout << "Down.\n";
+		player->move(0.f, 1.f);
 }
 
 void Game::update() {
@@ -104,7 +105,7 @@ void Game::render() {
 
 	grid->render(window);
 	player->render(window);
-
+	
 	for(auto &monster : monsters)
 		monster.second.render(window);
 

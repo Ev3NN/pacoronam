@@ -15,8 +15,7 @@ class FoodTile : public Tile {
 
 	public:
 		// Constructor
-		FoodTile();
-		FoodTile(TileType tileType, uint cols, uint rows);
+		FoodTile(c_TileType& tileType, c_uint& rows, c_uint& cols);
 
 		// Public functions
 		void render(sf::RenderTarget* target);

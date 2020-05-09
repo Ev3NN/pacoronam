@@ -12,8 +12,8 @@ class Grid {
 
 	private:
 		// Size
-		c_uint rows;
-		c_uint cols;
+		static c_uint rows = GRID_ROWS;
+		static c_uint cols = GRID_COLS;
 
 		// Texture
 		sf::Texture texture;
@@ -35,7 +35,6 @@ class Grid {
 		void init_map();
 	
 	public:
-
 		// Constructors/Destructor
 		Grid();
 

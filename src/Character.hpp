@@ -14,8 +14,10 @@ class Character {
 
 		// Sickness, immmune, ...
 
+		void init_variables(c_float movementSpeed);
+
 	public:
-		Character(float movementSpeed);
+		Character(c_float& movementSpeed);
 		virtual ~Character();
 		
 		virtual void update() = 0;

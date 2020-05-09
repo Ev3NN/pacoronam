@@ -8,6 +8,7 @@
 #include "Player.hpp"
 #include "Monster.hpp"
 
+// Main class
 class Game {
 
 	private:
@@ -18,7 +19,7 @@ class Game {
 		Grid *grid;
 		Player* player;
 		// Map of monsters
-		std::map<std::string, Monster> monsters;
+		std::map<string, Monster> monsters;
 		
 		// Private functions
 		void init_window();

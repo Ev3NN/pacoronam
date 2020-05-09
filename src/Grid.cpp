@@ -13,7 +13,6 @@ bool Grid::init_std_texture() {
 	if(!texture.loadFromFile(STD_TILESET_FILENAME))
 		return false;
 
-	texture.setSmooth(true);
 	return true;
 }
 
@@ -97,19 +96,21 @@ void Grid::init_map() {
 				remainingFood.push_back(currTile);
 			}
 			else
-				map[i][j] = Tile(tilesetKeys[i * cols + j], i, j);
+				map[i][j] = Tile(tileKey, i, j);
 		}
 }
 
 // Public functions
 
 // Constructors
-Grid::Grid() : rows(GRID_ROWS), cols(GRID_COLS) {
+Grid::Grid() {
 
 	// Does not handle potential errors !!! -> Exceptions ?
-	init_texture();
+	if(!init_texture())
+		std::cout << "Do something 'bout that.\n";
+	if(!init_tileset_keys())
+		std::cout << "Do something 'bout that.\n";
 
-	init_tileset_keys();
 	init_vertices();
 	init_map();
 }

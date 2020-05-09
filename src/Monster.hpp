@@ -9,15 +9,18 @@
 class Monster : public Character {
 
 	private:
+		string name;
 		sf::RectangleShape shape;
 
         // Modes, target, ...
 
 		// Private functions
-		void init_shape(std::string name);
+
+		void init_variables(c_string name);
+		void init_shape(c_string& name);
 
 	public:
-		Monster(std::string name);
+		Monster(c_string& name);
 		
 		void update();
 

@@ -3,9 +3,16 @@
 
 // Public functions
 
-Character::Character(float movementSpeed) : movementSpeed(movementSpeed), dirX(0.0f), 
-                                            dirY(0.0f), aboveTile(nullptr) {}
+void Character::init_variables(c_float movementSpeed) {
+	this->movementSpeed = movementSpeed;
+	this->dirX = this->dirY = 0.f;
+	this->aboveTile = nullptr;
+}
+
+Character::Character(c_float& movementSpeed) {
+	init_variables(movementSpeed);
+} 
 
 Character::~Character() {
-    delete aboveTile;
+	delete aboveTile;
 }

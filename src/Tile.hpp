@@ -6,16 +6,19 @@
 
 class Tile {
 	protected:
+		static c_uint pxSize = CELL_SIZE;
+
 		TileType tileType;
 		uint rows, cols;
-		uint pxSize;
+
+		void init_variables(c_TileType tileType = NO_TILE, c_uint rows = 0, c_uint cols = 0);
 
 	public:
 
-		sf::Vector2f get_tile_centre();
+		sf::Vector2f get_tile_centre() const;
 
 		Tile();
-		Tile(TileType tileType, uint rows, uint cols);
+		Tile(c_TileType& tileType, c_uint& rows, c_uint& cols);
 };
 
 #endif // !TILE_HPP

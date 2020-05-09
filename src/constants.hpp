@@ -5,6 +5,7 @@
 
 using std::string;
 
+typedef const int c_int;
 typedef unsigned int uint;
 typedef const unsigned int c_uint;
 typedef const float c_float;

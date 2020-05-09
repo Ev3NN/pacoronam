@@ -1,7 +1,12 @@
-build/Character.o: Character.cpp Character.hpp Tile.hpp constants.hpp
+build/Character.o: Character.cpp Character.hpp constants.hpp Grid.hpp \
+  FoodTile.hpp Tile.hpp
 
 Character.hpp:
 
-Tile.hpp:
-
 constants.hpp:
+
+Grid.hpp:
+
+FoodTile.hpp:
+
+Tile.hpp:

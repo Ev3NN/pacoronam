@@ -8,21 +8,16 @@
 
 class Player : public Character {
 
-	private:
-		sf::CircleShape shape;
+	protected:
 
 		// Private functions
 		void init_shape();
 
 	public:
 		Player();
+		~Player();
 
 		void update();
-
-		void move(c_float& dirX, c_float& dirY);
-
-		void render(sf::RenderTarget* target);
-
 };
 
 #endif // !PLAYER_HPP

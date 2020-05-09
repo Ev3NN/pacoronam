@@ -100,6 +100,43 @@ void Grid::init_map() {
 		}
 }
 
+Tile* Grid::get_next_tile(c_int& i, c_int& j, c_int& dirX, c_int& dirY) {
+
+	// Special case: pacman is not on a tile at the beginning
+	if(i == -1 && j == -1) {
+		if(dirX == -1)
+			return &map[26][13];
+		else if(dirX == 1)
+			return &map[26][14];
+		else
+			return nullptr;
+	}
+
+	c_int iNextTile = i + dirY;
+	c_int jNextTile = j + dirX;
+
+	std::cout << "i nexxttile: " << iNextTile << "\n";
+	std::cout << "j nexxttile: " << jNextTile << "\n";
+
+	// Prevents signed and unsigned comparison
+	c_int rows = this->rows;
+	c_int cols = this->cols;
+
+	//std::cout << "i, j: " << iNextTile << " " << jNextTile << "\n";
+
+	if(iNextTile >= 0 && iNextTile < rows && jNextTile >= 0 && jNextTile < cols) {
+		//std::cout << "i_n j_n" << iNextTile << " " << jNextTile << "\n";
+		
+		if(&map[iNextTile][jNextTile] == nullptr)
+			std::cout << "Coucou\n";
+
+		return &map[iNextTile][jNextTile];
+	}
+		
+
+	return nullptr;
+}
+
 // Public functions
 
 // Constructors

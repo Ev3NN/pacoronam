@@ -7,6 +7,7 @@
 
 #include "constants.hpp"
 #include "FoodTile.hpp"
+#include "Tile.hpp"
 
 class Grid {
 
@@ -33,6 +34,8 @@ class Grid {
 		bool init_tileset_keys();
 		void init_vertices();
 		void init_map();
+
+		Tile* get_next_tile(c_int& i, c_int& j, c_int& dirX, c_int& dirY);
 	
 	public:
 		// Constructors/Destructor
@@ -41,6 +44,8 @@ class Grid {
 		void update();
 
 		void render(sf::RenderTarget* target);
+
+	friend class Character;
 };
 
 #endif // !GRID_HPP

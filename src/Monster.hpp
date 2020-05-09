@@ -8,9 +8,8 @@
 
 class Monster : public Character {
 
-	private:
+	protected:
 		string name;
-		sf::RectangleShape shape;
 
         // Modes, target, ...
 
@@ -21,10 +20,9 @@ class Monster : public Character {
 
 	public:
 		Monster(c_string& name);
+		~Monster();
 		
 		void update();
-
-		void render(sf::RenderTarget* target);
 
 };
 

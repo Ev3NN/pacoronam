@@ -1,14 +1,14 @@
-build/Monster.o: Monster.cpp Monster.hpp Character.hpp constants.hpp \
-  Grid.hpp FoodTile.hpp Tile.hpp
+build/Monster.o: Monster.cpp Monster.hpp constants.hpp Character.hpp \
+  Grid.hpp Tile.hpp Food.hpp
 
 Monster.hpp:
 
-Character.hpp:
-
 constants.hpp:
+
+Character.hpp:
 
 Grid.hpp:
 
-FoodTile.hpp:
-
 Tile.hpp:
+
+Food.hpp:

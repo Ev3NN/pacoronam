@@ -1,27 +1,41 @@
 #ifndef MONSTER_HPP
 #define MONSTER_HPP
 
-#include <SFML/Graphics.hpp>
 #include <string>
 
+#include "constants.hpp"
 #include "Character.hpp"
+#include "Grid.hpp"
+
+// Derived class representing a specific monster
 
 class Monster : public Character {
 
 	protected:
+		/* --- PROTECTED DATA MEMBERS --- */
+		
+		// Name of the monster
 		string name;
 
-        // Modes, target, ...
+        // Add modes, target, ...
 
-		// Private functions
+		/* --- PROTECTED FUNCTIONS --- */
 
+		// Initialises the data members
 		void init_variables(c_string name);
+
+		// Initialises the shape (declared in base class)
 		void init_shape(c_string& name);
 
 	public:
-		Monster(c_string& name);
+		/* --- PUBLIC DATA MEMBERS --- */
+
+		// Constructors & Destructor
+		Monster(Grid* grid, c_string& name);
 		~Monster();
 		
+		// Not implemented yet !
+		// Updates each data member
 		void update();
 
 };

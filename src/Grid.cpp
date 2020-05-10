@@ -1,12 +1,9 @@
-#include <SFML/Graphics.hpp>
 #include <iostream>
 #include <fstream>
-#include <utility>
 
 #include "Grid.hpp"
-#include "Tile.hpp"
 
-// Private functions
+/* --- PRIVATE FUNCTIONS --- */
 
 bool Grid::init_std_texture() {
 	texture = sf::Texture();
@@ -25,12 +22,14 @@ bool Grid::init_debug_texture() {
 	return true;
 }
 
+
 bool Grid::init_texture() {
 	if(DEBUG)
 		return init_debug_texture();
 	else
 		return init_std_texture();
 }
+
 
 bool Grid::init_tileset_keys() {
 
@@ -83,24 +82,28 @@ void Grid::init_vertices() {
 		}
 }
 
+
 void Grid::init_map() {
-	for(std::size_t i = 0; i < rows; ++i) 
+	for(std::size_t i = 0; i < rows; ++i) {
 		for(std::size_t j = 0; j < cols; ++j) {
+
 			TileType tileKey = tilesetKeys[i * cols + j];
 
-			if(tileKey == TREAT_TILE || tileKey == PILL_TILE) {
-				// Adds a food tile in the map and in remainingFood
-				FoodTile currTile(tileKey, i, j);
+			Tile* newTile = new Tile(tileKey, i, j);
 
-				map[i][j] = currTile;
-				remainingFood.push_back(currTile);
-			}
-			else
-				map[i][j] = Tile(tileKey, i, j);
+			map[i][j] = newTile;
+
+			if(tileKey == TREAT_TILE || tileKey == PILL_TILE)
+				// Adds a food tile in the map and in remainingFood
+				remainingFood.push_back(newTile);
+			
 		}
+			
+	}
 }
 
-Tile* Grid::get_next_tile(c_int& i, c_int& j, c_int& dirX, c_int& dirY) {
+
+/* Tile* Grid::get_next_tile(c_int& i, c_int& j, c_int& dirX, c_int& dirY) {
 
 	// Special case: pacman is not on a tile at the beginning
 	if(i == -1 && j == -1) {
@@ -114,10 +117,6 @@ Tile* Grid::get_next_tile(c_int& i, c_int& j, c_int& dirX, c_int& dirY) {
 
 	c_int iNextTile = i + dirY;
 	c_int jNextTile = j + dirX;
-
-	std::cout << "i nexxttile: " << iNextTile << "\n";
-	std::cout << "j nexxttile: " << jNextTile << "\n";
-
 	// Prevents signed and unsigned comparison
 	c_int rows = this->rows;
 	c_int cols = this->cols;
@@ -126,20 +125,18 @@ Tile* Grid::get_next_tile(c_int& i, c_int& j, c_int& dirX, c_int& dirY) {
 
 	if(iNextTile >= 0 && iNextTile < rows && jNextTile >= 0 && jNextTile < cols) {
 		//std::cout << "i_n j_n" << iNextTile << " " << jNextTile << "\n";
-		
-		if(&map[iNextTile][jNextTile] == nullptr)
-			std::cout << "Coucou\n";
 
 		return &map[iNextTile][jNextTile];
 	}
 		
-
 	return nullptr;
-}
+} */
 
-// Public functions
+/* --- PUBLIC FUNCTIONS --- */
 
-// Constructors
+// Constructors & Destructor
+
+
 Grid::Grid() {
 
 	// Does not handle potential errors !!! -> Exceptions ?
@@ -152,6 +149,18 @@ Grid::Grid() {
 	init_map();
 }
 
+Grid::~Grid() {
+	for(size_t i = 0; i < rows; ++i)
+		for(size_t j = 0; j < cols; ++j)
+			delete map[i][j];
+}
+
+
+Tile* Grid::get_tile_at(c_uint& i, c_uint& j) {
+	return map[i][j];
+}
+
+
 void Grid::update() {
 
 	// Modifier map en fonction de remainingFood entre autres
@@ -159,10 +168,11 @@ void Grid::update() {
 
 }
 
+
 void Grid::render(sf::RenderTarget* target) {
 
 	target->draw(vertices, &texture);
 
-	for(auto &food : remainingFood)
-		food.render(target);
+	for(auto &foodTile : remainingFood)
+		foodTile->render(target);
 }

@@ -3,49 +3,71 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
-#include <map>
 
 #include "constants.hpp"
-#include "FoodTile.hpp"
 #include "Tile.hpp"
 
+// Represents the map
 class Grid {
 
 	private:
-		// Size
+		/* --- PRIVATE DATA MEMBERS --- */
+
+		// Sizes
 		static c_uint rows = GRID_ROWS;
 		static c_uint cols = GRID_COLS;
 
-		// Texture
+		// Visual apperance
 		sf::Texture texture;
-
-		// Map
 		std::vector<TileType> tilesetKeys;
-		Tile map[GRID_ROWS][GRID_COLS];
 		sf::VertexArray vertices;
 
-		std::vector<FoodTile> remainingFood;
+		// Map
+		Tile* map[GRID_ROWS][GRID_COLS];
+		std::vector<Tile*> remainingFood;
 
-		// Private functions
+		/* --- PRIVATE DATA MEMBERS --- */
+
+		// Initialises the texture. Returns false if an error occured
 		bool init_std_texture();
+
+		// Initialises the texture in DEBUG mode. Returns false if an error occured
 		bool init_debug_texture();
+
+		// Initialises the texture in STANDARD mode. Returns false if an error occured
 		bool init_texture();
 
+		// Initialises the file containing the tileset's keys. Returns false if an error occured
 		bool init_tileset_keys();
+
+		// Initialises the array of vertices
 		void init_vertices();
+
+		// Initialises the map
 		void init_map();
 
-		Tile* get_next_tile(c_int& i, c_int& j, c_int& dirX, c_int& dirY);
+		// Returns a specific tile after a movement
+		// Tile* get_next_tile(c_int& i, c_int& j, c_int& dirX, c_int& dirY);
 	
 	public:
-		// Constructors/Destructor
-		Grid();
+		/* --- PUBLIC FUNCTIONS --- */
 
+		// Constructors & Destructor
+		Grid();
+		~Grid();
+
+		//Returns the Tile or FoodTile at a specified coordinate
+		Tile* get_tile_at(c_uint& i, c_uint& j);
+
+		// Not implemented yet !
+		// Updates each data member
 		void update();
 
+		// Draws each data member
 		void render(sf::RenderTarget* target);
 
-	friend class Character;
+	// Need to refactor this
+	// Character needs to computes the next tile to update its data members
 };
 
 #endif // !GRID_HPP

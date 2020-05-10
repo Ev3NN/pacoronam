@@ -5,11 +5,13 @@
 #include "constants.hpp"
 #include "Game.hpp"
 
-// Private functions
+/* --- PRIVATE FUNCTIONS --- */
+
 void Game::init_window() {
-	this->window = new sf::RenderWindow(sf::VideoMode(GRID_COLS * CELL_SIZE, GRID_ROWS * CELL_SIZE), "PACoronam");
-	this->window->setFramerateLimit(60);
-	this->window->setVerticalSyncEnabled(false);
+	window = new sf::RenderWindow(sf::VideoMode(GRID_COLS * CELL_SIZE, GRID_ROWS * CELL_SIZE), "PACoronam");
+	window->setFramerateLimit(60);
+	window->setVerticalSyncEnabled(false);
+	window->setKeyRepeatEnabled(false);
 }
 
 void Game::init_grid() {
@@ -17,14 +19,14 @@ void Game::init_grid() {
 }
 
 void Game::init_player() {
-	player = new Player();
+	player = new Player(grid);
 }
 
 void Game::init_monsters() {
-	Monster* blinky = new Monster("Blinky");
-	Monster* pinky = new Monster("Pinky");
-	Monster* inky = new Monster("Inky");
-	Monster* clyde = new Monster("Clyde");
+	Monster* blinky = new Monster(grid, "Blinky");
+	Monster* pinky = new Monster(grid, "Pinky");
+	Monster* inky = new Monster(grid, "Inky");
+	Monster* clyde = new Monster(grid, "Clyde");
 
 	monsters.insert(std::pair<string, Monster*> ("Blinky", blinky));
 	monsters.insert(std::pair<string, Monster*> ("Pinky", pinky));
@@ -32,9 +34,9 @@ void Game::init_monsters() {
 	monsters.insert(std::pair<string, Monster*> ("Clyde", clyde));
 }
 
-// Public functions
+/* --- PUBLIC FUNCTIONS --- */
 
-// Constructor
+// Constructors & Destructor
 Game::Game() {
 	this->init_window();
 	this->init_grid();
@@ -64,34 +66,42 @@ void Game::run() {
 
 void Game::update_poll_events() {
 	sf::Event e;
+	
+	while(window->pollEvent(e)) {
+		if(e.type == sf::Event::Closed)
+			window->close();
 
-	while(this->window->pollEvent(e)) {
+		// Pacman must walk until there is a wall in front of him (or until another command is triggered)
+		/* else if( e.type == sf::Event::KeyPressed && e.key.code == sf::Keyboard::Left)
+			player->move(grid, -1.f, 0.f);
 
-		switch(e.type) {
-			case sf::Event::Closed:
-				window->close();
-				break;
+		else if( e.type == sf::Event::KeyPressed && e.key.code == sf::Keyboard::Up)
+			player->move(grid, 0.f, -1.f);
 
-			default:
-				break;
-		}
+		else if( e.type == sf::Event::KeyPressed && e.key.code == sf::Keyboard::Right)
+			player->move(grid, 1.f, 0.f);
+		
+		else if( e.type == sf::Event::KeyPressed && e.key.code == sf::Keyboard::Down)
+			player->move(grid, 0.f, 1.f); */
 	}
 }
+
 
 void Game::update_input() {
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-		player->move(grid, -1.f, 0.f);
+		player->move(-1, 0);
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-		player->move(grid, 0.f, -1.f);
+		player->move(0, -1);
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-		player->move(grid, 1.f, 0.f);
+		player->move(1, 0);
 		
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-		player->move(grid, 0.f, 1.f);
+		player->move(0, 1);
 }
+
 
 void Game::update() {
 

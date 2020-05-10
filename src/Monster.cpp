@@ -1,12 +1,14 @@
+#include <SFML/Graphics.hpp>
+
 #include "Monster.hpp"
-#include "constants.hpp"
 
-#include <iostream>
+/* --- PRIVATE FUNCTIONS --- */
 
-// Private functions
+
 void Monster::init_variables(c_string name) {
 	this->name = name;
 }
+
 
 void Monster::init_shape(c_string& name) {
 
@@ -34,17 +36,20 @@ void Monster::init_shape(c_string& name) {
 		shape->setFillColor(sf::Color(247, 187, 20));
 	}
 }
-// Public functions
+/* --- PUBLIC FUNCTIONS --- */
 
-// Constructors
-Monster::Monster(c_string& name) : Character(0.95f * REF_SPEED, name) {
+// Constructors & Destructor
+
+Monster::Monster(Grid* grid, c_string& name) : Character(grid, name) {
 	init_variables(name);
 	init_shape(name);
 }
 
+
 Monster::~Monster() {
 	delete shape;
 }
+
 
 void Monster::update() {
 	// Changes the position, colour, ...

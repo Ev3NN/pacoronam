@@ -22,7 +22,7 @@ static c_string STD_TILESET_FILENAME = "assets/tileset.png";
 static c_string DEBUG_TILESET_FILENAME = "assets/debug_tileset.png";
 
 static c_uint FPS = 60;
-static c_float REF_SPEED = 5 * CELL_SIZE / 60.f;
+static c_float REF_SPEED = 5.f * CELL_SIZE / FPS;
 
 static c_uint TILE_IMAGE_PX_SIZE = 64;
 static c_uint IMAGES_NBR_PER_ROW = 5;

@@ -12,32 +12,52 @@
 class Game {
 
 	private:
+		/* --- PRIVATE DATA MEMBERS --- */
+
 		// Window
 		sf::RenderWindow* window;
 
 		// Grid
 		Grid* grid;
+
+		// Characters
 		Player* player;
-		// Map of monsters
 		std::map<string, Monster*> monsters;
 		
-		// Private functions
+		/* --- PRIVATE FUNCTIONS --- */
+
+		// Initialises the window its settings
 		void init_window();
+
+		// Initialises the whole grid
 		void init_grid();	
+
+		// Initialises the player (Pac-Man)
 		void init_player();
+
+		// Initialises the foor monsters
 		void init_monsters();
 
 	public:
+		/* --- PUBLIC FUNCTIONS --- */
+
+		// Constructors & Destructor
 		Game();
 		~Game();
 		
-		// Public functions
+		// Launches the main loop
 		void run();
 
+		// Notifies the program of a triggered event
 		void update_poll_events();
+
+		// Not needed anymore ?
 		void update_input();
+
+		// Updates each data member
 		void update();
 
+		// Draws each data member
 		void render();
 };
 

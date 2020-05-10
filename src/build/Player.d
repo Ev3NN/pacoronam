@@ -1,14 +1,14 @@
-build/Player.o: Player.cpp Player.hpp constants.hpp Character.hpp \
-  Grid.hpp FoodTile.hpp Tile.hpp
+build/Player.o: Player.cpp Player.hpp Character.hpp constants.hpp \
+  Grid.hpp Tile.hpp Food.hpp
 
 Player.hpp:
 
-constants.hpp:
-
 Character.hpp:
+
+constants.hpp:
 
 Grid.hpp:
 
-FoodTile.hpp:
-
 Tile.hpp:
+
+Food.hpp:

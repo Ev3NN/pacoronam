@@ -1,9 +1,9 @@
-build/Grid.o: Grid.cpp Grid.hpp constants.hpp FoodTile.hpp Tile.hpp
+build/Grid.o: Grid.cpp Grid.hpp constants.hpp Tile.hpp Food.hpp
 
 Grid.hpp:
 
 constants.hpp:
 
-FoodTile.hpp:
-
 Tile.hpp:
+
+Food.hpp:

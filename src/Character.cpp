@@ -72,6 +72,58 @@ Character::Character(Grid* grid, c_string& name) {
 
 Character::~Character() {}
 
+void Character::handle_initial_move() {
+
+	// Only horizontal movements can change this state (nullptr) 
+	if(dirY != 0)
+		return;
+
+	else if(dirX == 1)
+		aboveTile = grid->get_tile_at(26, 14);
+
+	else if(dirX == -1)
+		aboveTile = grid->get_tile_at(26, 13);
+
+	centreX = centreX + movementSpeed * dirX;
+	centreY = centreY + movementSpeed * dirY;
+	shape->move(movementSpeed * dirX, movementSpeed * dirY);
+}
+
+bool Character::handle_wall_collisions(Tile* nextTile) {
+	if(nextTile->is_wall()) {
+		// std::cout << "There's a wall there, funny guy\n";
+
+		// Right
+		if(dirX == 1 && sf::Vector2f(centreX + movementSpeed, centreY).x >= aboveTile->get_tile_centre().x) {
+			centreX = aboveTile->get_tile_centre().x;
+			return true;
+		}
+
+		// Left
+		if(dirX == -1 && sf::Vector2f(centreX - movementSpeed, centreY).x <= aboveTile->get_tile_centre().x) {
+			centreX = aboveTile->get_tile_centre().x;
+			return true;
+		}
+
+		// Down
+		if(dirY == 1 && sf::Vector2f(centreX, centreY + movementSpeed).y >= aboveTile->get_tile_centre().y) {
+			centreY = aboveTile->get_tile_centre().y;
+			return true;
+		}
+
+		// Up
+		if(dirY == -1 && sf::Vector2f(centreX, centreY - movementSpeed).y <= aboveTile->get_tile_centre().y) {
+			centreY = aboveTile->get_tile_centre().y;
+			return true;
+		}
+
+
+		// Update things
+	}
+
+	return false;
+}
+
 void Character::move(c_int dirX, c_int dirY) {
 	c_int tmpDirX = this->dirX;
 	c_int tmpDirY = this->dirY;
@@ -81,69 +133,30 @@ void Character::move(c_int dirX, c_int dirY) {
 
 	// Special case: at the beginning of the game, the characters are positioned between two tiles
 	// Hence the aboveTile = nullptr
+
 	if(!aboveTile) {
+		handle_initial_move();
+		return;
+	}
+	
+	// To implement later. See what's best for the underground implementation
+	// Next tile is the underground
+	if(in_tunnel(aboveTile->rows + dirY, aboveTile->cols + dirX)) {
+		// Will block pacman as soon as he reaches the last tile		
+		return;
+	}
 
-		// Only horizontal movements can change this state (nullptr) 
-		if(dirX == 1)
-			aboveTile = grid->get_tile_at(26, 14);
+	Tile* nextTile = find_next_tile();
 
-		else if(dirX == -1)
-			aboveTile = grid->get_tile_at(26, 13);
-		else
-			return;
 
-		centreX = centreX + movementSpeed * dirX;
-		centreY = centreY + movementSpeed * dirY;
-		shape->move(movementSpeed * dirX, movementSpeed * dirY);
-
-	/* 	std::cout << "tiletype: " << aboveTile->tileType << "\n";	
-
-		std::cout << "Coord centre: !\n\t";
-		std::cout << "x: " << centreX << "\n\t";
-		std::cout << "y: " << centreY << "\n"; */
+	if(handle_wall_collisions(nextTile)) {
+		//centreX = aboveTile->get_tile_centre().x;
+		//centreY = aboveTile->get_tile_centre().y;
+		shape->setPosition(centreX, centreY);
 
 		return;
 	}
 
-	// To implement later. See what's best for the underground implementation
-	if(in_tunnel(aboveTile->rows + dirY, aboveTile->cols + dirX)) {
-		// std::cout << "yo\n";
-	}
-
-	Tile* tmpTile = find_next_tile();
-	// std::cout << "Before check: tyletype = " << tmpTile->tileType << "\n";
-	if(tmpTile->is_wall()) {
-		// std::cout << "There's a wall there, funny guy\n";
-
-		if(dirX == 1 && sf::Vector2f(centreX, centreY).x >= aboveTile->get_tile_centre().x) {
-			centreX = aboveTile->get_tile_centre().x;
-			shape->setPosition(centreX, centreY);
-			// std::cout << "centre x: " << aboveTile->get_tile_centre().x;
-			return;
-		}
-		if(dirX == -1 && sf::Vector2f(centreX, centreY).x <= aboveTile->get_tile_centre().x) {
-			centreX = aboveTile->get_tile_centre().x;
-			shape->setPosition(centreX, centreY);
-			return;
-		}
-		if(dirY == 1 && sf::Vector2f(centreX, centreY).y >= aboveTile->get_tile_centre().y) {
-			centreY = aboveTile->get_tile_centre().y;
-			shape->setPosition(centreX, centreY);
-			return;
-		}
-		if(dirY == -1 && sf::Vector2f(centreX, centreY).y <= aboveTile->get_tile_centre().y) {
-			centreY = aboveTile->get_tile_centre().y;
-			shape->setPosition(centreX, centreY);
-			return;
-		}
-		// Update things
-
-		// Not fully working. Collisions must be detected sooner
-		// Otherwise, characters can move in both direction even if there is only one tile large
-
-	}
-
-	
 
 	// Pour valider le move, le centre de pac-man doit se trouver dans la case
 
@@ -176,14 +189,14 @@ void Character::move(c_int dirX, c_int dirY) {
 
 	
 
-	/* if(tmpTile->get_bounds().contains(sf::Vector2f(tmpCentreX, tmpCentreY))) {
+	/* if(nextTile->get_bounds().contains(sf::Vector2f(tmpCentreX, tmpCentreY))) {
 		std::cout << "contains !!!!\n";
 	}
 	else {
 		std::cout << "doesn't contain\n";
 		std::cout << "Coord: !\n\t";
-		std::cout << "x: " << tmpTile->get_bounds().left / 28.f << "\n\t";
-		std::cout << "y: " << tmpTile->get_bounds().top / 28.f<< "\n";
+		std::cout << "x: " << nextTile->get_bounds().left / 28.f << "\n\t";
+		std::cout << "y: " << nextTile->get_bounds().top / 28.f<< "\n";
 
 		std::cout << "Coord centre: !\n\t";
 		std::cout << "x: " << tmpCentreX << "\n\t";
@@ -194,12 +207,12 @@ void Character::move(c_int dirX, c_int dirY) {
 		
 
 	// Changement de case
-	if(tmpTile->get_bounds().contains(sf::Vector2f(tmpCentreX, tmpCentreY))) {
+	if(nextTile->get_bounds().contains(sf::Vector2f(tmpCentreX, tmpCentreY))) {
 		// std::cout << "contains !\n";
-		// std::cout << "x: " << tmpTile->get_bounds().left << "\n";
-		// std::cout << "y: " << tmpTile->get_bounds().top << "\n";
-		// std::cout << "x: " << tmpTile->get_bounds().width << "\n";
-		aboveTile = tmpTile;
+		// std::cout << "x: " << nextTile->get_bounds().left << "\n";
+		// std::cout << "y: " << nextTile->get_bounds().top << "\n";
+		// std::cout << "x: " << nextTile->get_bounds().width << "\n";
+		aboveTile = nextTile;
 	}
 
 	
@@ -215,13 +228,13 @@ void Character::move(c_int dirX, c_int dirY) {
 
 
 
-	/* else if(tmpTile->tileType == TREAT_TILE) {
+	/* else if(nextTile->tileType == TREAT_TILE) {
 
 		// Check if there is a collision
 		centreX = movementSpeed * dirX;
 		centreY = movementSpeed * dirY;
 
-		if(this->shape->getGlobalBounds().intersects(tmpTile->food->shape.getGlobalBounds())) {
+		if(this->shape->getGlobalBounds().intersects(nextTile->food->shape.getGlobalBounds())) {
 			std::cout << "hiiii\n";
 		}
 			
@@ -235,7 +248,7 @@ void Character::move(c_int dirX, c_int dirY) {
 		// Update things
 	}
 
-	else if(tmpTile->tileType == PILL_TILE) {
+	else if(nextTile->tileType == PILL_TILE) {
 		std::cout << "DONT MESS W/ ME DUDE\n";
 
 
@@ -247,13 +260,13 @@ void Character::move(c_int dirX, c_int dirY) {
 		// Update things
 	}
 
-	else if(tmpTile->tileType == EMPTY_TILE) {
+	else if(nextTile->tileType == EMPTY_TILE) {
 		std::cout << "Pfff, nothing to do. Not fun mate\n";
 
 		// Update things though
 	}
 
-	else if(tmpTile->tileType == DOOR_TILE) {
+	else if(nextTile->tileType == DOOR_TILE) {
 		std::cout << "U can't enter here. Bad guy only !\n";
 
 		// Same as for walls. We need to detect it sooner
@@ -290,32 +303,32 @@ void Character::move(c_int dirX, c_int dirY) {
 	centreX += movementSpeed * dirX;
 	centreY += movementSpeed * dirY;
 
-	Tile* tmpTile = find_next_tile();
-	if(tmpTile == nullptr)
+	Tile* nextTile = find_next_tile();
+	if(nextTile == nullptr)
 		std::cout << "hi talk plz\n";
 
-	// tmpTile can be null if a character uses the underground tunnel
+	// nextTile can be null if a character uses the underground tunnel
 
 
 	if(!aboveTile) {
 		std::cout << "First move\n";
 		// Beginning of the game: pac-man is between two tiles			
-		aboveTile = tmpTile;
+		aboveTile = nextTile;
 	}
 
 	// Compare t and aboveTile
-	if(!aboveTile->compare(tmpTile)) {
+	if(!aboveTile->compare(nextTile)) {
 		// Checking tile cases
 
 		
 
 		// Underground tunnet
-		if(!tmpTile) {
+		if(!nextTile) {
 			std::cout << "Here's the tunnel boiii\n";
 			// Update things
 		}
 
-		else if(tmpTile->is_wall()) {
+		else if(nextTile->is_wall()) {
 			std::cout << "There's a wall there, funny guy\n";
 			// Update things
 
@@ -327,7 +340,7 @@ void Character::move(c_int dirX, c_int dirY) {
 			return;
 		}
 
-		else if(tmpTile->tileType == TREAT_TILE) {
+		else if(nextTile->tileType == TREAT_TILE) {
 			std::cout << "Miam miam\n";
 
 			// Remove the treat in grid->remainingFood
@@ -339,7 +352,7 @@ void Character::move(c_int dirX, c_int dirY) {
 			// Update things
 		}
 
-		else if(tmpTile->tileType == PILL_TILE) {
+		else if(nextTile->tileType == PILL_TILE) {
 			std::cout << "DONT MESS W/ ME DUDE\n";
 
 			// remove the pill in grid->remaningFood
@@ -348,13 +361,13 @@ void Character::move(c_int dirX, c_int dirY) {
 			// Update things
 		}
 
-		else if(tmpTile->tileType == EMPTY_TILE) {
+		else if(nextTile->tileType == EMPTY_TILE) {
 			std::cout << "Pfff, nothing to do. Not fun mate\n";
 
 			// Update things though
 		}
 
-		else if(tmpTile->tileType == DOOR_TILE) {
+		else if(nextTile->tileType == DOOR_TILE) {
 			std::cout << "U can't enter here. Bad guy only !\n";
 
 			// Same as for walls. We need to detect it sooner

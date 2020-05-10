@@ -40,6 +40,10 @@ class Character {
 		// Initialises the data members of a monster
 		void init_monster(Grid* grid, c_string& name);
 
+		void handle_initial_move();
+
+		bool handle_wall_collisions(Tile* nextTile);
+
 	public:
 		/* --- PUBLIC FUNCTIONS --- */
 

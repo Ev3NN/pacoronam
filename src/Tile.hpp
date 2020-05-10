@@ -31,7 +31,7 @@ class Tile {
 		sf::FloatRect get_bounds();
 
 		// Returns true if the two tiles are the same
-		bool compare(Tile* tmpTile);
+		bool compare(Tile* nextTile);
 
 		bool is_wall();
 

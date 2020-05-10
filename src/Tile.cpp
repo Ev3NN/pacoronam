@@ -20,12 +20,12 @@ sf::FloatRect Tile::get_bounds() {
 						 sf::Vector2f(CELL_SIZE, CELL_SIZE));
 }
 
-bool Tile::compare(Tile* tmpTile) {
-	if(!tmpTile)
+bool Tile::compare(Tile* nextTile) {
+	if(!nextTile)
 		return false;
 
 	// No need to compare tiletype ?
-	if(this->rows == tmpTile->rows && this->cols == tmpTile->cols)
+	if(this->rows == nextTile->rows && this->cols == nextTile->cols)
 		return true;
 
 	return false;

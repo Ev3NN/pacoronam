@@ -92,7 +92,6 @@ void Character::handle_initial_move() {
 bool Character::handle_wall_collisions(Tile* nextTile) {
 	if(nextTile->is_wall()) {
 		// std::cout << "There's a wall there, funny guy\n";
-
 		// Right
 		if(dirX == 1 && sf::Vector2f(centreX + movementSpeed, centreY).x >= aboveTile->get_tile_centre().x) {
 			centreX = aboveTile->get_tile_centre().x;
@@ -116,17 +115,29 @@ bool Character::handle_wall_collisions(Tile* nextTile) {
 			centreY = aboveTile->get_tile_centre().y;
 			return true;
 		}
-
-
 		// Update things
 	}
 
 	return false;
 }
 
+bool Character::handle_turn(c_int prevDirX, c_int prevDirY) {
+
+	if(dirX != prevDirX && dirY != prevDirY) {
+		// Cannot move
+		if(dirX != -1 && dirX != 1 && !cmp_float(centreX, aboveTile->get_tile_centre().x))
+			// std::cout << "cannot move vert., not aligned";
+			return true;
+		else if(dirY != -1 && dirY != 1 && !cmp_float(centreY, aboveTile->get_tile_centre().y))
+			return true;
+	}
+
+	return false;
+}
+
 void Character::move(c_int dirX, c_int dirY) {
-	c_int tmpDirX = this->dirX;
-	c_int tmpDirY = this->dirY;
+	c_int prevDirX = this->dirX;
+	c_int prevDirY = this->dirY;
 
 	this->dirX = dirX;
 	this->dirY = dirY;
@@ -150,68 +161,21 @@ void Character::move(c_int dirX, c_int dirY) {
 
 
 	if(handle_wall_collisions(nextTile)) {
-		//centreX = aboveTile->get_tile_centre().x;
-		//centreY = aboveTile->get_tile_centre().y;
 		shape->setPosition(centreX, centreY);
-
 		return;
 	}
 
-
-	// Pour valider le move, le centre de pac-man doit se trouver dans la case
-
-	
-
-	// problème à régler: Lorsque pac-man veut tourner (check dirX, dirY), on doit imposer 
-	// que le centre de pac-man soit au centre de la tile
-
-	if(dirX != tmpDirX && dirY != tmpDirY) {
-
-		// Cannot move
-		if(dirX != -1 && dirX != 1 && !cmp_float(centreX, aboveTile->get_tile_centre().x)) {
-			// std::cout << "cannot move vert., not aligned";
-			this->dirX = tmpDirX;
-			this->dirY = tmpDirY;
-			return;
-		}
-		else if(dirY != -1 && dirY != 1 && !cmp_float(centreY, aboveTile->get_tile_centre().y)) {
-			// std::cout << "cannot move horiz., not aligned";
-			this->dirX = tmpDirX;
-			this->dirY = tmpDirY;
-			return;
-		}
-
-
+	if(handle_turn(prevDirX, prevDirY)) {
+		this->dirX = prevDirX;
+		this->dirY = prevDirY;
+		return;
 	}
 
-	c_float tmpCentreX = centreX + movementSpeed * dirX;
-	c_float tmpCentreY = centreY + movementSpeed * dirY;
+	c_float nextCentreX = centreX + movementSpeed * dirX;
+	c_float nextCentreY = centreY + movementSpeed * dirY;
 
-	
-
-	/* if(nextTile->get_bounds().contains(sf::Vector2f(tmpCentreX, tmpCentreY))) {
-		std::cout << "contains !!!!\n";
-	}
-	else {
-		std::cout << "doesn't contain\n";
-		std::cout << "Coord: !\n\t";
-		std::cout << "x: " << nextTile->get_bounds().left / 28.f << "\n\t";
-		std::cout << "y: " << nextTile->get_bounds().top / 28.f<< "\n";
-
-		std::cout << "Coord centre: !\n\t";
-		std::cout << "x: " << tmpCentreX << "\n\t";
-		std::cout << "y: " << tmpCentreY << "\n";
-
-
-	} */
-		
-
-	// Changement de case
-	if(nextTile->get_bounds().contains(sf::Vector2f(tmpCentreX, tmpCentreY))) {
-		// std::cout << "contains !\n";
-		// std::cout << "x: " << nextTile->get_bounds().left << "\n";
-		// std::cout << "y: " << nextTile->get_bounds().top << "\n";
-		// std::cout << "x: " << nextTile->get_bounds().width << "\n";
+	// Changement de tile
+	if(nextTile->get_bounds().contains(sf::Vector2f(nextCentreX, nextCentreY))) {
 		aboveTile = nextTile;
 	}
 
@@ -221,8 +185,8 @@ void Character::move(c_int dirX, c_int dirY) {
 	// SInon, on reste sur la même case tout en avancant visuellement. Les cas de collisions
 	// avec les murs, monstres etc sont gérés au dessus
 
-	centreX = tmpCentreX;
-	centreY = tmpCentreY;
+	centreX = nextCentreX;
+	centreY = nextCentreY;
 	shape->move(movementSpeed * dirX, movementSpeed * dirY);
 	// std::cout << "tiletype: " << aboveTile->tileType << "\n";	
 
@@ -297,8 +261,8 @@ void Character::move(c_int dirX, c_int dirY) {
 
 
 
-	/* float tmpCentreX = centreX;
-	float tmpCentreY = centreY;
+	/* float nextCentreX = centreX;
+	float nextCentreY = centreY;
 
 	centreX += movementSpeed * dirX;
 	centreY += movementSpeed * dirY;
@@ -334,8 +298,8 @@ void Character::move(c_int dirX, c_int dirY) {
 
 			// Not fully working. Collisions must be detected sooner
 			// Otherwise, characters can move in both direction even if there is only one tile large
-			centreX = tmpCentreX;
-			centreY = tmpCentreY;
+			centreX = nextCentreX;
+			centreY = nextCentreY;
 
 			return;
 		}
@@ -371,8 +335,8 @@ void Character::move(c_int dirX, c_int dirY) {
 			std::cout << "U can't enter here. Bad guy only !\n";
 
 			// Same as for walls. We need to detect it sooner
-			centreX = tmpCentreX;
-			centreY = tmpCentreY;
+			centreX = nextCentreX;
+			centreY = nextCentreY;
 
 			return;
 		}

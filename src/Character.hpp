@@ -44,6 +44,8 @@ class Character {
 
 		bool handle_wall_collisions(Tile* nextTile);
 
+		bool handle_turn(c_int prevDirX, c_int prevDirY);
+
 	public:
 		/* --- PUBLIC FUNCTIONS --- */
 

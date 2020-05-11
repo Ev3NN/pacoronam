@@ -42,7 +42,7 @@ bool Grid::init_tileset_keys() {
 	uint a;
 	// The vector only stores the integers encountered
 	while(ifs >> a)
-		this->tilesetKeys.push_back((TileType) a);
+		tilesetKeys.push_back((TileType) a);
 		
 	ifs.close();
 

@@ -19,7 +19,7 @@ class Character {
 
 		// Movement related fields
 		float movementSpeed;
-		int dirX, dirY;
+		int dirX, dirY, prevDirX, prevDirY;
 
 		Grid* grid;
 
@@ -47,8 +47,8 @@ class Character {
 
 		bool handle_wall_collisions(Tile* nextTile);
 
-		bool handle_turn(c_int prevDirX, c_int prevDirY);
-
+		bool handle_turn();
+		
 	public:
 		/* --- PUBLIC FUNCTIONS --- */
 
@@ -57,10 +57,12 @@ class Character {
 		Character(Grid* grid, c_string& name);
 		virtual ~Character();
 		
+		void set_direction(c_int dirX, c_int dirY);
+
 		virtual void update() = 0;
 
 		// Given a specific direction, moves the shape and keep 'aboveTile' updated
-		void move(c_int dirX, c_int dirY);
+		void move();
 
 		// Draws the needed data members on the window
 		void render(sf::RenderTarget* target);

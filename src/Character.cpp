@@ -30,7 +30,7 @@ void Character::init_player(Grid* grid, c_float movementSpeed, c_float centreX, 
 	this->movementSpeed = movementSpeed;
 	this->centreX = centreX;
 	this->centreY = centreY;
-	this->dirX = this->dirY = 0;
+	this->dirX = this->dirY = this->prevDirX = this->prevDirY = 0;
 	this->grid = grid;
 	this->aboveTile = nullptr;
 
@@ -39,7 +39,7 @@ void Character::init_player(Grid* grid, c_float movementSpeed, c_float centreX, 
 
 void Character::init_monster(Grid* grid, c_string& name) {
 	this->movementSpeed = 0.95f * REF_SPEED;
-	this->dirX = this->dirY = 0;
+	this->dirX = this->dirY = this->prevDirX = this->prevDirY = 0;
 	this->grid = grid;
 	this->aboveTile = nullptr;
 
@@ -88,6 +88,10 @@ void Character::handle_initial_move() {
 
 	centreX = centreX + movementSpeed * dirX;
 	centreY = centreY + movementSpeed * dirY;
+
+	prevDirX = dirX;
+	prevDirY = dirY;
+
 	shape->move(movementSpeed * dirX, movementSpeed * dirY);
 }
 
@@ -97,24 +101,32 @@ bool Character::handle_wall_collisions(Tile* nextTile) {
 		// Right
 		if(dirX == 1 && sf::Vector2f(centreX + movementSpeed, centreY).x >= aboveTile->get_tile_centre().x) {
 			centreX = aboveTile->get_tile_centre().x;
+			dirX = prevDirX;
+			dirY = prevDirY;
 			return true;
 		}
 
 		// Left
 		if(dirX == -1 && sf::Vector2f(centreX - movementSpeed, centreY).x <= aboveTile->get_tile_centre().x) {
 			centreX = aboveTile->get_tile_centre().x;
+			dirX = prevDirX;
+			dirY = prevDirY;
 			return true;
 		}
 
 		// Down
 		if(dirY == 1 && sf::Vector2f(centreX, centreY + movementSpeed).y >= aboveTile->get_tile_centre().y) {
 			centreY = aboveTile->get_tile_centre().y;
+			dirX = prevDirX;
+			dirY = prevDirY;
 			return true;
 		}
 
 		// Up
 		if(dirY == -1 && sf::Vector2f(centreX, centreY - movementSpeed).y <= aboveTile->get_tile_centre().y) {
 			centreY = aboveTile->get_tile_centre().y;
+			dirX = prevDirX;
+			dirY = prevDirY;
 			return true;
 		}
 		// Update things
@@ -123,31 +135,33 @@ bool Character::handle_wall_collisions(Tile* nextTile) {
 	return false;
 }
 
-bool Character::handle_turn(c_int prevDirX, c_int prevDirY) {
+bool Character::handle_turn() {
 
 	if(dirX != prevDirX && dirY != prevDirY) {
+		std::cout << "Hi\n";
 		// Cannot move
-		if(dirX != -1 && dirX != 1 && !cmp_float(centreX, aboveTile->get_tile_centre().x))
-			// std::cout << "cannot move vert., not aligned";
+		if(dirX != -1 && dirX != 1 && !cmp_float(centreX, aboveTile->get_tile_centre().x)) {
+			std::cout << "coucou1\n";
 			return true;
-		else if(dirY != -1 && dirY != 1 && !cmp_float(centreY, aboveTile->get_tile_centre().y))
+		}
+		else if(dirY != -1 && dirY != 1 && !cmp_float(centreY, aboveTile->get_tile_centre().y)) {
+			std::cout << "coucou2\n";
 			return true;
+		}
+			
 	}
 
 	return false;
 }
 
-void Character::move(c_int dirX, c_int dirY) {
-	if(digestCooldown > 0) {
-		std::cout << "hi\n";
-		return;
-	}
-
-	c_int prevDirX = this->dirX;
-	c_int prevDirY = this->dirY;
-
+void Character::set_direction(c_int dirX, c_int dirY) {
 	this->dirX = dirX;
 	this->dirY = dirY;
+}
+
+void Character::move() {
+	if(digestCooldown > 0) 
+		return;
 
 	// Special case: at the beginning of the game, the characters are positioned between two tiles
 	// Hence the aboveTile = nullptr
@@ -172,7 +186,7 @@ void Character::move(c_int dirX, c_int dirY) {
 		return;
 	}
 
-	if(handle_turn(prevDirX, prevDirY)) {
+	if(handle_turn()) {
 		this->dirX = prevDirX;
 		this->dirY = prevDirY;
 		return;
@@ -190,8 +204,8 @@ void Character::move(c_int dirX, c_int dirY) {
 						
 			// digestion time = duration of a whole frame (in msec)
 			// 2 * 16: Not very consistant but the update() is called juste after move() 
-			// Therefore digestCooldown will be 16 after that call and will represent the real
-			// cooldown
+			// We need to finish the current frame, block moves for the following frame and then
+			// resume moving
 			digestCooldown = 32;
 
 			// Update counter (eaten food)
@@ -222,6 +236,10 @@ void Character::move(c_int dirX, c_int dirY) {
 
 	centreX = nextCentreX;
 	centreY = nextCentreY;
+
+	prevDirX = dirX;
+	prevDirY = dirY;
+	
 	shape->move(movementSpeed * dirX, movementSpeed * dirY);
 	// std::cout << "tiletype: " << aboveTile->tileType << "\n";	
 

@@ -26,6 +26,8 @@ class Player : public Character {
 		Player(Grid* grid);
 		~Player();
 
+		
+
 		// Updates each data member
 		void update();
 };

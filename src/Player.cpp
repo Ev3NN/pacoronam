@@ -31,8 +31,10 @@ Player::~Player() {
 	delete shape;
 }
 
-
 void Player::update() {
+
+	move();
+
 	if(digestCooldown > 0)
 		// 1/FPS = 16ms. The duration of an iteration in the main loop. Our cheap timer
 		digestCooldown -= 16;

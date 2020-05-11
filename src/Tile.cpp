@@ -17,7 +17,7 @@ void Tile::init_food() {
 
 sf::FloatRect Tile::get_bounds() {
 	return sf::FloatRect(sf::Vector2f(cols * CELL_SIZE, rows * CELL_SIZE), 
-						 sf::Vector2f(CELL_SIZE, CELL_SIZE));
+							 sf::Vector2f(CELL_SIZE, CELL_SIZE));
 }
 
 bool Tile::compare(Tile* nextTile) {

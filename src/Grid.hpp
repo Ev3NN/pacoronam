@@ -23,7 +23,7 @@ class Grid {
 		sf::VertexArray vertices;
 
 		// Map
-		Tile* map[GRID_ROWS][GRID_COLS];
+		
 		std::vector<Tile*> remainingFood;
 
 		/* --- PRIVATE DATA MEMBERS --- */
@@ -50,6 +50,8 @@ class Grid {
 		// Tile* get_next_tile(c_int& i, c_int& j, c_int& dirX, c_int& dirY);
 	
 	public:
+
+		Tile* map[GRID_ROWS][GRID_COLS];
 		/* --- PUBLIC FUNCTIONS --- */
 
 		// Constructors & Destructor
@@ -58,6 +60,8 @@ class Grid {
 
 		//Returns the Tile or FoodTile at a specified coordinate
 		Tile* get_tile_at(c_uint& i, c_uint& j);
+
+		void remove_food(c_uint& i, c_uint& j);
 
 		// Not implemented yet !
 		// Updates each data member

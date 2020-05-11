@@ -23,8 +23,12 @@ class Game {
 		// Characters
 		Player* player;
 		std::map<string, Monster*> monsters;
+
+		unsigned long long timer;
 		
 		/* --- PRIVATE FUNCTIONS --- */
+		
+		void init_variables();
 
 		// Initialises the window its settings
 		void init_window();

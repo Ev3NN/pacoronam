@@ -7,6 +7,10 @@
 
 /* --- PRIVATE FUNCTIONS --- */
 
+void Game::init_variables() {
+	timer = 0;
+}
+
 void Game::init_window() {
 	window = new sf::RenderWindow(sf::VideoMode(GRID_COLS * CELL_SIZE, GRID_ROWS * CELL_SIZE), "PACoronam");
 	window->setFramerateLimit(60);
@@ -38,10 +42,11 @@ void Game::init_monsters() {
 
 // Constructors & Destructor
 Game::Game() {
-	this->init_window();
-	this->init_grid();
-	this->init_player();
-	this->init_monsters();
+	init_variables();
+	init_window();
+	init_grid();
+	init_player();
+	init_monsters();
 }
 
 Game::~Game() {
@@ -61,6 +66,8 @@ void Game::run() {
 		this->update();
 
 		this->render();
+
+		++timer;
 	}
 }
 

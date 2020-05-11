@@ -26,6 +26,9 @@ class Character {
 		// The tile where the character is positioned
 		Tile* aboveTile;
 
+		// Time
+		int digestCooldown;
+
 		// Add sickness, immunity, ... fields
 
 		/* --- PROTECTED FUNCTIONS --- */

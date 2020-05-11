@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <iostream>
 
 #include "Player.hpp"
 #include "constants.hpp"
@@ -32,5 +33,9 @@ Player::~Player() {
 
 
 void Player::update() {
-
+	if(digestCooldown > 0)
+		// 1/FPS = 16ms. The duration of an iteration in the main loop. Our cheap timer
+		digestCooldown -= 16;
+	else
+		digestCooldown = 0;
 }

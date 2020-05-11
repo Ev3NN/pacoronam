@@ -33,6 +33,8 @@ void Character::init_player(Grid* grid, c_float movementSpeed, c_float centreX, 
 	this->dirX = this->dirY = 0;
 	this->grid = grid;
 	this->aboveTile = nullptr;
+
+	this->digestCooldown = 0;
 }
 
 void Character::init_monster(Grid* grid, c_string& name) {
@@ -136,6 +138,11 @@ bool Character::handle_turn(c_int prevDirX, c_int prevDirY) {
 }
 
 void Character::move(c_int dirX, c_int dirY) {
+	if(digestCooldown > 0) {
+		std::cout << "hi\n";
+		return;
+	}
+
 	c_int prevDirX = this->dirX;
 	c_int prevDirY = this->dirY;
 
@@ -174,16 +181,44 @@ void Character::move(c_int dirX, c_int dirY) {
 	c_float nextCentreX = centreX + movementSpeed * dirX;
 	c_float nextCentreY = centreY + movementSpeed * dirY;
 
+	if(nextTile->tileType == TREAT_TILE) {
+
+		if(nextTile->get_bounds().contains(sf::Vector2f(nextCentreX, nextCentreY))) {
+			
+			// Remove the food from remainingFood at a specific index
+			grid->remove_food(nextTile->rows, nextTile->cols);
+						
+			// digestion time = duration of a whole frame (in msec)
+			// 2 * 16: Not very consistant but the update() is called juste after move() 
+			// Therefore digestCooldown will be 16 after that call and will represent the real
+			// cooldown
+			digestCooldown = 32;
+
+			// Update counter (eaten food)
+
+			// Update score
+
+			// Digest !!!
+			
+		}
+
+
+
+
+	}
+
+
+
+
+
+
+
+
+
 	// Changement de tile
 	if(nextTile->get_bounds().contains(sf::Vector2f(nextCentreX, nextCentreY))) {
 		aboveTile = nextTile;
 	}
-
-	
-
-
-	// SInon, on reste sur la même case tout en avancant visuellement. Les cas de collisions
-	// avec les murs, monstres etc sont gérés au dessus
 
 	centreX = nextCentreX;
 	centreY = nextCentreY;

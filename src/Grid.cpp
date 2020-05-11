@@ -153,11 +153,24 @@ Grid::~Grid() {
 	for(size_t i = 0; i < rows; ++i)
 		for(size_t j = 0; j < cols; ++j)
 			delete map[i][j];
+
 }
 
 
 Tile* Grid::get_tile_at(c_uint& i, c_uint& j) {
 	return map[i][j];
+}
+
+void Grid::remove_food(c_uint& iFood, c_uint& jFood) {
+	
+	for(auto itr = remainingFood.begin(); itr != remainingFood.end(); ++itr) {
+		// Find the food tile we want
+		// Memory leaks or double free if I try to do this properly (using erase and delete)
+		if((*itr)->rows == iFood && (*itr)->cols == jFood) {
+			(*itr)->tileType = EMPTY_TILE;
+			return;
+		}
+	}
 }
 
 
@@ -174,5 +187,6 @@ void Grid::render(sf::RenderTarget* target) {
 	target->draw(vertices, &texture);
 
 	for(auto &foodTile : remainingFood)
-		foodTile->render(target);
+		if(foodTile->tileType == TREAT_TILE || foodTile->tileType == PILL_TILE)
+			foodTile->render(target);
 }

@@ -22,6 +22,7 @@ class Character {
 		int prevDirX, prevDirY, dirX, dirY, nextTurnDirX, nextTurnDirY;
 
 		bool takeCorner, takeRightAngle;
+		bool isCornering;
 
 		Grid* grid;
 
@@ -49,6 +50,8 @@ class Character {
 
 		bool is_digesting();
 
+		bool is_motionless();
+
 		bool handle_initial_move();
 
 		bool handle_tunnel();
@@ -57,9 +60,11 @@ class Character {
 
 		bool handle_non_blocking_wall();
 
+		bool predict_wall_collision();
+
 		bool handle_wall();
 
-		bool is_changing_axis();
+		bool is_turning();
 
 		bool is_changing_direction();
 

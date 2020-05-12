@@ -8,7 +8,7 @@ void Character::init_player(Grid* grid, c_double movementSpeed, c_double centreX
 	this->centreX = centreX;
 	this->centreY = centreY;
 	this->dirX = this->dirY = this->prevDirX = this->prevDirY = 0;
-	this->takeCorner = takeRightAngle = false;
+	this->takeCorner = takeRightAngle = this->isCornering = false;
 	this->nextTurnDirX = this->nextTurnDirY = 0;
 	this->grid = grid;
 	this->aboveTile = nullptr;
@@ -258,6 +258,9 @@ Character::~Character() {}
 // }
 
 void Character::set_direction(c_int dirX, c_int dirY) {
+	if(isCornering)
+		return;
+
 	this->dirX = dirX;
 	this->dirY = dirY;
 }
@@ -326,18 +329,19 @@ bool Character::handle_tunnel() {
 }
 
 bool Character::handle_blocking_wall() {
-
-	if(is_changing_axis()) {
-		// std::cout << "hi\n";
+	std::cout << "dir: " << dirX << " " << dirY << "\n";
+	std::cout << "prev dir: " << prevDirX << " " << prevDirY << "\n";
+	if(is_turning())
 		return false;
-	}
+
+	// Can be put in a fonction imo
 
 	// Right
 	if(dirX == 1 && (centreX + movementSpeed) >= aboveTile->get_tile_centre().x) 
 		centreX = aboveTile->get_tile_centre().x;
 	// Left
 	else if(dirX == -1 && (centreX - movementSpeed) <= aboveTile->get_tile_centre().x)
-		centreX = aboveTile->get_tile_centre().x;
+		centreX = aboveTile->get_tile_centre().x;		
 	// Down
 	else if(dirY == 1 && (centreY + movementSpeed) >= aboveTile->get_tile_centre().y) 
 		centreY = aboveTile->get_tile_centre().y;
@@ -348,87 +352,97 @@ bool Character::handle_blocking_wall() {
 		centreX += movementSpeed * dirX;
 		centreY += movementSpeed * dirY;
 
-		prevDirX = dirX;
-		prevDirY = dirY;
+		// Clear nextTurDir ?
 
-		shape->move(centreX, centreY);
+		shape->move(movementSpeed * dirX, movementSpeed * dirY);
+
+		return true;
 	}
 
-	return true;	
+	shape->setPosition(centreX, centreY);
+
+	prevDirX = prevDirY = dirX = dirY = 0;
+
+	return true;
 }
 
 bool Character::handle_non_blocking_wall() {
-	if(!is_changing_axis())
-		return false;
+	if(!is_turning())
+		return false;	
 
 	Tile* nextTile = find_next_tile(prevDirX, prevDirY);
+	// Handles cases where the player changes the direction but at the end of the hall, 
+	//there is also a wall in that new direction
+	if(nextTile->is_wall()) {
+		// The situation becomes equivalent to moving until there is a wall in the direction of movement
+		dirX = prevDirX;
+		dirY = prevDirY;
+
+		takeCorner = false;
+
+		if(handle_blocking_wall())
+			return true;
+	}
+
+	// Il n'y a pas de wall dans le sens de mouvement
 
 	takeCorner = true;
 
-	nextTurnDirX = dirX;
-	nextTurnDirY = dirY;
-
-	dirX = prevDirX;
-	dirY = prevDirY;
-
-	float nextCentreX = centreX + movementSpeed * dirX;
-	float nextCentreY = centreY + movementSpeed * dirY;
+	float nextCentreX = centreX + movementSpeed * prevDirX;
+	float nextCentreY = centreY + movementSpeed * prevDirY;
 	sf::Vector2f nextCentre = sf::Vector2f(nextCentreX, nextCentreY);
-	
+
 	if(nextTile->get_bounds().contains(nextCentre)) {
 		aboveTile = nextTile;
 
-		if(dirX == -1) {
-			std::cout << "a\n";
-			centreX = nextTile->get_bounds().left + CELL_SIZE;
-			centreY = nextTile->get_bounds().top + CELL_SIZE / 2.f;
-		}
-		else if(dirX == 1) {
-			std::cout << "b\n";
-			centreX = nextTile->get_bounds().left;
-			centreY = nextTile->get_bounds().top + CELL_SIZE / 2.f;
-		}
-		else if(dirY == 1) {
-			std::cout << "c\n";
-			centreX = nextTile->get_bounds().left + CELL_SIZE / 2.f;
-			centreY = nextTile->get_bounds().top;
-		}
-		else if(dirY == -1) {
-			std::cout << "d\n";
-			centreX = nextTile->get_bounds().left + CELL_SIZE / 2.f;
-			centreY = nextTile->get_bounds().top + CELL_SIZE;
-		}
+		Tile* checkTile = find_next_tile(dirX, dirY);
+		if(!checkTile->is_wall()) {
 
-		shape->setPosition(centreX, centreY);
+			if(prevDirX == -1) {
+			centreX = aboveTile->get_bounds().left + CELL_SIZE;
+			centreY = aboveTile->get_bounds().top + CELL_SIZE / 2.f;
+			}
+			else if(prevDirX == 1) {
+				centreX = aboveTile->get_bounds().left;
+				centreY = aboveTile->get_bounds().top + CELL_SIZE / 2.f;
+			}
+			else if(prevDirY == 1) {
+				centreX = aboveTile->get_bounds().left + CELL_SIZE / 2.f;
+				centreY = aboveTile->get_bounds().top;
+			}
+			else if(prevDirY == -1) {
+				centreX = aboveTile->get_bounds().left + CELL_SIZE / 2.f;
+				centreY = aboveTile->get_bounds().top + CELL_SIZE;
+			}
 
-		dirX = nextTurnDirX;
-		dirY = nextTurnDirY;
+			shape->setPosition(centreX, centreY);
 
-		return true;
+			return true;
+		}
 	}
 
 	centreX = nextCentreX;
 	centreY = nextCentreY;
 
-	shape->move(movementSpeed * dirX, movementSpeed * dirY);
-
-	dirX = nextTurnDirX;
-	dirY = nextTurnDirY;
+	shape->move(movementSpeed * prevDirX, movementSpeed * prevDirY);
 
 	return true;
 }
 
-bool Character::handle_wall() {
+bool Character::predict_wall_collision() {
 	Tile* nextTile = find_next_tile(dirX, dirY);
-	if(!nextTile->is_wall())
+
+	return nextTile->is_wall();
+}
+
+bool Character::handle_wall() {
+	if(!predict_wall_collision())
 		return false;
 
 	// Cas où pac-man fonce dans un mur (pas de changemnet de direction)
-	if(handle_blocking_wall()) {
-		shape->setPosition(centreX, centreY);
+	if(handle_blocking_wall())
 		return true;
-	}
-
+		
 	// Cas où le joueur change de direction mais la case suivante dans cette direction est un mur
 	if(handle_non_blocking_wall())
 		return true;
@@ -436,8 +450,9 @@ bool Character::handle_wall() {
 	return false;
 }
 
-bool Character::is_changing_axis() {
-	return dirX != prevDirX && dirY != prevDirY;
+bool Character::is_turning() {
+	// is_motionless needed ?
+	return dirX != prevDirX && dirY != prevDirY && !is_motionless();
 }
 
 bool Character::is_changing_direction() {
@@ -567,66 +582,142 @@ bool Character::handle_cornering() {
 	if(!takeCorner)
 		return false;
 
-	int cornerDirX, cornerDirY;
+	isCornering = true;
 
-	if(prevDirX == 0) {
-		cornerDirX = nextTurnDirX;
-		cornerDirY = prevDirY;
-	}
-	else {
-		cornerDirX = prevDirX;
-		cornerDirY = nextTurnDirY;
-	}
-
-	Tile* cornerTile = find_next_tile(nextTurnDirX, nextTurnDirY);
+	int cornerDirX = prevDirX + dirX;
+	int cornerDirY = prevDirY + dirY;
 
 	float nextCentreX = centreX + movementSpeed * cornerDirX;
 	float nextCentreY = centreY + movementSpeed * cornerDirY;
+	sf::Vector2f nextCentre = sf::Vector2f(nextCentreX, nextCentreY);
 
-	if(cornerTile->get_bounds().contains(nextCentreX, nextCentreY)) {
-		aboveTile = cornerTile;
-		takeCorner = false;
+	Tile* nextTile = find_next_tile(dirX, dirY);
+	if(nextTile->get_bounds().contains(nextCentre)) {
+		aboveTile = nextTile;
 
-		if(nextTurnDirX == -1 && nextTurnDirY == 0) {
+		// Centrer
+		if(dirX == -1 && dirY == 0) {
 			std::cout << "1\n";
-			centreX = cornerTile->get_bounds().left;
-			centreY = cornerTile->get_bounds().top + CELL_SIZE / 2.f;
+			centreX = aboveTile->get_bounds().left + CELL_SIZE;
+			centreY = aboveTile->get_bounds().top + CELL_SIZE / 2.f;
 		}
-		else if(nextTurnDirX == 1 && nextTurnDirY == 0) {
+		else if(dirX == 1 && dirY == 0) {
 			std::cout << "2\n";
-			centreX = cornerTile->get_bounds().left + CELL_SIZE;
-			centreY = cornerTile->get_bounds().top + CELL_SIZE / 2.f;
+			centreX = aboveTile->get_bounds().left;
+			centreY = aboveTile->get_bounds().top + CELL_SIZE / 2.f;
 		}
-		else if(nextTurnDirX == 0 && nextTurnDirY == -1) {
-			std::cout << "coucou\n";
-			centreX = cornerTile->get_bounds().left + CELL_SIZE / 2.f;
-			centreY = cornerTile->get_bounds().top;
-		}
-		else if(nextTurnDirX == 0 && nextTurnDirY == 1) {
+		else if(dirX == 0 && dirY == -1) {
 			std::cout << "3\n";
-			centreX = cornerTile->get_bounds().left + CELL_SIZE / 2.f;
-			centreY = cornerTile->get_bounds().top + CELL_SIZE;
+			centreX = aboveTile->get_bounds().left + CELL_SIZE / 2.f;
+			centreY = aboveTile->get_bounds().top + CELL_SIZE;
 		}
-
-		prevDirX = dirX = nextTurnDirX;
-		prevDirY = dirY = nextTurnDirY;
+		else if(dirX == 0 && dirY == 1) {
+			std::cout << "4\n";
+			centreX = aboveTile->get_bounds().left + CELL_SIZE / 2.f;
+			centreY = aboveTile->get_bounds().top;
+		}
 
 		shape->setPosition(centreX, centreY);
 
-		return true;
-	}
-	else {
-		centreX = nextCentreX;
-		centreY = nextCentreY;
+		prevDirX = dirX;
+		prevDirY = dirY;
 
-		shape->move(movementSpeed * cornerDirX, movementSpeed * cornerDirY);
+		takeCorner = false;
+		isCornering = false;
 
 		return true;
 	}
+
+	centreX += movementSpeed * cornerDirX;
+	centreY += movementSpeed * cornerDirY;
+
+	shape->move(movementSpeed * cornerDirX, movementSpeed * cornerDirY);
+
+	return true;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	// int cornerDirX, cornerDirY;
+
+	// if(prevDirX == 0) {
+	// 	cornerDirX = nextTurnDirX;
+	// 	cornerDirY = prevDirY;
+	// }
+	// else {
+	// 	cornerDirX = prevDirX;
+	// 	cornerDirY = nextTurnDirY;
+	// }
+
+	// Tile* cornerTile = find_next_tile(nextTurnDirX, nextTurnDirY);
+
+	// float nextCentreX = centreX + movementSpeed * cornerDirX;
+	// float nextCentreY = centreY + movementSpeed * cornerDirY;
+
+	// if(cornerTile->get_bounds().contains(nextCentreX, nextCentreY)) {
+	// 	aboveTile = cornerTile;
+	// 	takeCorner = false;
+
+	// 	if(nextTurnDirX == -1 && nextTurnDirY == 0) {
+	// 		std::cout << "1\n";
+	// 		centreX = cornerTile->get_bounds().left;
+	// 		centreY = cornerTile->get_bounds().top + CELL_SIZE / 2.f;
+	// 	}
+	// 	else if(nextTurnDirX == 1 && nextTurnDirY == 0) {
+	// 		std::cout << "2\n";
+	// 		centreX = cornerTile->get_bounds().left + CELL_SIZE;
+	// 		centreY = cornerTile->get_bounds().top + CELL_SIZE / 2.f;
+	// 	}
+	// 	else if(nextTurnDirX == 0 && nextTurnDirY == -1) {
+	// 		std::cout << "coucou\n";
+	// 		centreX = cornerTile->get_bounds().left + CELL_SIZE / 2.f;
+	// 		centreY = cornerTile->get_bounds().top;
+	// 	}
+	// 	else if(nextTurnDirX == 0 && nextTurnDirY == 1) {
+	// 		std::cout << "3\n";
+	// 		centreX = cornerTile->get_bounds().left + CELL_SIZE / 2.f;
+	// 		centreY = cornerTile->get_bounds().top + CELL_SIZE;
+	// 	}
+
+	// 	prevDirX = dirX = nextTurnDirX;
+	// 	prevDirY = dirY = nextTurnDirY;
+
+	// 	shape->setPosition(centreX, centreY);
+
+	// 	return true;
+	// }
+	// else {
+	// 	centreX = nextCentreX;
+	// 	centreY = nextCentreY;
+
+	// 	shape->move(movementSpeed * cornerDirX, movementSpeed * cornerDirY);
+
+	// 	return true;
+	// }
 }
 
 bool Character::handle_turn() {
-	if(!is_changing_axis()) {
+	if(!is_turning()) {
 		return false;
 	}
 		
@@ -639,19 +730,22 @@ bool Character::handle_turn() {
 	if(handle_right_angle())
 		return true;
 
-	
-
-
 	return false;
 
 }
 
-void Character::move() {
-	// Digesting takes a whole frame when Pac-Man cannot move
-	if(is_digesting()) {
+bool Character::is_motionless() {
+	return dirX == 0 && dirY == 0;
+}
 
+void Character::move() {
+	// When pac-man
+	if(is_motionless())
 		return;
-	}
+
+	// Digesting takes a whole frame when Pac-Man cannot move
+	if(is_digesting())
+		return;
 		
 
 	// Special case: Pac-Man begins between two tiles

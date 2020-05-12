@@ -33,7 +33,7 @@ class Tile {
 		// Returns true if the two tiles are the same
 		bool compare(Tile* nextTile);
 
-		bool is_wall();
+		bool is_restricted_area(bool isMonsterHouseOpen);
 
 	public:
 		/* --- PUBLIC FUNCTIONS --- */

@@ -23,6 +23,7 @@ class Character {
 
 		bool takeCorner, takeRightAngle;
 		bool isCornering;
+		bool isMonsterHouseOpen;
 
 		Grid* grid;
 
@@ -70,11 +71,11 @@ class Character {
 
 		bool is_changing_orientation();
 
-		bool handle_treat();
+		void eat_treat();
 
-		bool is_right_angle_timing();
+		bool is_right_angle_timing(c_float& centreX, c_float& centreY);
 
-		bool handle_right_angle();
+		void handle_right_angle();
 
 		bool handle_cornering();
 

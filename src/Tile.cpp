@@ -31,8 +31,8 @@ bool Tile::compare(Tile* nextTile) {
 	return false;
 }
 
-bool Tile::is_wall() {
-	return tileType >= 1 && tileType <= 13;
+bool Tile::is_restricted_area(bool isMonsterHouseOpen) {
+	return (tileType >= 1 && tileType <= 13) || (tileType == DOOR_TILE && !isMonsterHouseOpen);
 }
 
 /* --- PUBLIC FUNCTIONS --- */

@@ -15,7 +15,7 @@ void Monster::init_shape(c_string& name) {
 	c_uint pxSize = 1.6f * CELL_SIZE;
 
 	shape = new sf::RectangleShape(sf::Vector2f(pxSize, pxSize));
-	shape->setOrigin(pxSize / 2, pxSize / 2);
+	shape->setOrigin(pxSize / 2.f, pxSize / 2.f);
 
 	if(!name.compare("Blinky")) {
 		shape->setPosition(14 * CELL_SIZE, 14.5f * CELL_SIZE);

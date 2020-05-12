@@ -12,16 +12,9 @@ void Game::init_variables() {
 }
 
 void Game::init_window() {
-	if(DEBUG) {
-	sf::ContextSettings settings;
-	settings.antialiasingLevel = 4;
-	window = new sf::RenderWindow(sf::VideoMode(GRID_COLS * CELL_SIZE, GRID_ROWS * CELL_SIZE), 
-								"PACoronam", sf::Style::Default, settings);
-	}
-	else
-		window = new sf::RenderWindow(sf::VideoMode(GRID_COLS * CELL_SIZE, GRID_ROWS * CELL_SIZE), "PACoronam");
+	window = new sf::RenderWindow(sf::VideoMode(GRID_COLS * CELL_SIZE, GRID_ROWS * CELL_SIZE), "PACoronam");
 	window->setFramerateLimit(60);
-	window->setVerticalSyncEnabled(false);
+	//window->setVerticalSyncEnabled(false);
 	window->setKeyRepeatEnabled(false);
 }
 

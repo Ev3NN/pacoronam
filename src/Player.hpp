@@ -27,6 +27,7 @@ class Player : public Character {
 		~Player();
 
 		
+		void update_digestion_cooldown();
 
 		// Updates each data member
 		void update();

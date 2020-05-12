@@ -19,7 +19,9 @@ class Character {
 
 		// Movement related fields
 		float movementSpeed;
-		int dirX, dirY, prevDirX, prevDirY;
+		int prevDirX, prevDirY, dirX, dirY, nextTurnDirX, nextTurnDirY;
+
+		bool takeCorner, takeRightAngle;
 
 		Grid* grid;
 
@@ -33,19 +35,43 @@ class Character {
 
 		/* --- PROTECTED FUNCTIONS --- */
 
-		// Updates the data member 'aboveTile' in regards to the tile on which is the player/monster
-		// Returns false if the character is using the underground tunnel
-		Tile* find_next_tile();
+		
 
 		// Initialises the data members of the player
-		void init_player(Grid* grid, c_float movementSpeed, c_float centreX, c_float centreY);
+		void init_player(Grid* grid, c_double movementSpeed, c_double centreX, c_double centreY);
 
 		// Initialises the data members of a monster
 		void init_monster(Grid* grid, c_string& name);
 
-		void handle_initial_move();
+		// Updates the data member 'aboveTile' in regards to the tile on which is the player/monster
+		// Returns false if the character is using the underground tunnel
+		Tile* find_next_tile(c_int& dirX, c_int& dirY);
 
-		bool handle_wall_collisions(Tile* nextTile);
+		bool is_digesting();
+
+		bool handle_initial_move();
+
+		bool handle_tunnel();
+
+		bool handle_blocking_wall();
+
+		bool handle_non_blocking_wall();
+
+		bool handle_wall();
+
+		bool is_changing_axis();
+
+		bool is_changing_direction();
+
+		bool is_changing_orientation();
+
+		bool handle_treat();
+
+		bool is_right_angle_timing();
+
+		bool handle_right_angle();
+
+		bool handle_cornering();
 
 		bool handle_turn();
 		

@@ -56,7 +56,7 @@ class Game {
 		void update_poll_events();
 
 		// Not needed anymore ?
-		//void update_input();
+		void update_input();
 
 		// Updates each data member
 		void update();

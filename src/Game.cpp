@@ -78,6 +78,7 @@ void Game::update_poll_events() {
 		if(e.type == sf::Event::Closed)
 			window->close();
 
+		/*
 		// Pacman must walk until there is a wall in front of him (or until another command is triggered)
 		else if( e.type == sf::Event::KeyPressed && e.key.code == sf::Keyboard::Left)
 			player->set_direction(-1, 0);
@@ -90,29 +91,29 @@ void Game::update_poll_events() {
 		
 		else if( e.type == sf::Event::KeyPressed && e.key.code == sf::Keyboard::Down)
 			player->set_direction(0, 1);
+		*/
 	}
 }
 
 
-/* void Game::update_input() {
+void Game::update_input() {
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-		player->move(-1, 0);
+		player->set_direction(-1, 0);
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-		player->move(0, -1);
+		player->set_direction(0, -1);
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-		player->move(1, 0);
+		player->set_direction(1, 0);
 		
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-		player->move(0, 1);
-} */
-
+		player->set_direction(0, 1);
+}
 
 void Game::update() {
 
-	// update_input();
+	update_input();
 	grid->update();
 	player->update();
 	

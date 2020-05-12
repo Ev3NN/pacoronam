@@ -56,8 +56,8 @@ Tile::~Tile() {
 
 const sf::Vector2f Tile::get_tile_centre() const {
 
-	c_float centreX = (cols + 0.5f) * pxSize;
-	c_float centreY = (rows + 0.5f) * pxSize;
+	c_double centreX = (cols + 0.5f) * pxSize;
+	c_double centreY = (rows + 0.5f) * pxSize;
 
 	return sf::Vector2f(centreX, centreY);
 }

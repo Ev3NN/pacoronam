@@ -13,7 +13,7 @@ bool out_of_grid(c_int& i, c_int& j) {
 	return false;
 }
 
-bool in_tunnel(c_int& i, c_int& j) {
+bool is_tunnel(c_int& i, c_int& j) {
 
 	// Avoids signed-unsigned comparison
 	c_int cols = GRID_COLS;
@@ -21,6 +21,17 @@ bool in_tunnel(c_int& i, c_int& j) {
 	return (i == 17 && j == -1) || (i == 17 && j == cols);
 }
 
-bool cmp_float(c_float& a, c_float& b, float epsilon) {
+bool cmp_float(c_double& a, c_double& b, float epsilon) {
 	return (std::fabs(a - b) < epsilon);
+}
+
+bool cmp_point(sf::Vector2f a, sf::Vector2f b, c_float& epsilon) {
+	return cmp_float(a.x, b.x, epsilon) && cmp_float(a.y, b.y, epsilon);
+}
+
+template <class T>
+void swap(T& x, T& y) {
+	T tmp = y;
+	y = x;
+	x = tmp;
 }

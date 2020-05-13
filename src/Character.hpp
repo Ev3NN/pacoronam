@@ -19,10 +19,8 @@ class Character {
 
 		// Movement related fields
 		float movementSpeed;
-		int prevDirX, prevDirY, dirX, dirY, nextTurnDirX, nextTurnDirY;
+		int prevDirX, prevDirY, dirX, dirY;
 
-		bool takeCorner, takeRightAngle;
-		bool isCornering;
 		bool isMonsterHouseOpen;
 
 		Grid* grid;
@@ -31,7 +29,6 @@ class Character {
 		Tile* aboveTile;
 
 		// Time
-		int digestCooldown;
 
 		// Add sickness, immunity, ... fields
 
@@ -49,21 +46,25 @@ class Character {
 		// Returns false if the character is using the underground tunnel
 		Tile* find_next_tile(c_int& dirX, c_int& dirY);
 
-		bool is_digesting();
+		
 
 		bool is_motionless();
 
-		bool handle_initial_move();
+		
+
+		bool is_under_tunnel();
+
+		bool reaching_tunnel();
+
+		bool moving_away_from_tunnel();
 
 		bool handle_tunnel();
 
-		bool handle_blocking_wall();
-
-		bool handle_non_blocking_wall();
+		
 
 		bool predict_wall_collision();
 
-		bool handle_wall();
+		
 
 		bool is_turning();
 
@@ -71,15 +72,11 @@ class Character {
 
 		bool is_changing_orientation();
 
-		void eat_treat();
-
 		bool is_right_angle_timing(c_float& centreX, c_float& centreY);
 
 		void handle_right_angle();
 
-		bool handle_cornering();
-
-		bool handle_turn();
+		
 		
 	public:
 		/* --- PUBLIC FUNCTIONS --- */
@@ -89,12 +86,12 @@ class Character {
 		Character(Grid* grid, c_string& name);
 		virtual ~Character();
 		
-		void set_direction(c_int dirX, c_int dirY);
+		
 
 		virtual void update() = 0;
 
 		// Given a specific direction, moves the shape and keep 'aboveTile' updated
-		void move();
+		virtual void move() = 0;
 
 		// Draws the needed data members on the window
 		void render(sf::RenderTarget* target);

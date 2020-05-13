@@ -33,6 +33,8 @@ class Monster : public Character {
 		// Constructors & Destructor
 		Monster(Grid* grid, c_string& name);
 		~Monster();
+
+		void move();
 		
 		// Not implemented yet !
 		// Updates each data member

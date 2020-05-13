@@ -50,6 +50,9 @@ Monster::~Monster() {
 	delete shape;
 }
 
+void Monster::move() {
+	
+}
 
 void Monster::update() {
 	// Changes the position, colour, ...

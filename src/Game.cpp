@@ -14,7 +14,6 @@ void Game::init_variables() {
 void Game::init_window() {
 	window = new sf::RenderWindow(sf::VideoMode(GRID_COLS * CELL_SIZE, GRID_ROWS * CELL_SIZE), "PACoronam");
 	window->setFramerateLimit(60);
-	//window->setVerticalSyncEnabled(false);
 	window->setKeyRepeatEnabled(false);
 }
 

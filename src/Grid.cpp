@@ -10,8 +10,7 @@ bool Grid::init_std_texture() {
 	if(!texture.loadFromFile(STD_TILESET_FILENAME))
 		return false;
 
-	if(CELL_SIZE < 28)
-		texture.setSmooth(true);
+	texture.setSmooth(true);
 
 	return true;
 }

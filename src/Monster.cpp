@@ -51,7 +51,13 @@ Monster::~Monster() {
 }
 
 void Monster::move() {
-	
+}
+
+void Monster::reset(Grid* grid, c_string& name) {
+	Character::init_variables(grid);
+	init_monster(name);
+	Monster::init_variables(name);
+	init_shape(name);
 }
 
 void Monster::update() {

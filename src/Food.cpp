@@ -6,8 +6,7 @@
 void Food::init_shape(c_TileType& tileType, c_uint& rows, c_uint& cols) {
 	if(tileType == TREAT_TILE)
 		shape = sf::CircleShape(CELL_SIZE / 6.f);
-
-	
+		
 	// tileType == PILL_SIZE
 	else
 		shape = sf::CircleShape(CELL_SIZE / 3.f);

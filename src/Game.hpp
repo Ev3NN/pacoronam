@@ -24,12 +24,9 @@ class Game {
 		Player* player;
 		std::map<string, Monster*> monsters;
 
-		unsigned long long timer;
 		
 		/* --- PRIVATE FUNCTIONS --- */
 		
-		void init_variables();
-
 		// Initialises the window its settings
 		void init_window();
 
@@ -41,6 +38,8 @@ class Game {
 
 		// Initialises the foor monsters
 		void init_monsters();
+
+		void reset();
 
 	public:
 		/* --- PUBLIC FUNCTIONS --- */

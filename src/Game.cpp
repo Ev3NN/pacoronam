@@ -7,10 +7,6 @@
 
 /* --- PRIVATE FUNCTIONS --- */
 
-void Game::init_variables() {
-	timer = 0;
-}
-
 void Game::init_window() {
 	window = new sf::RenderWindow(sf::VideoMode(GRID_COLS * CELL_SIZE, GRID_ROWS * CELL_SIZE), "PACoronam");
 	window->setFramerateLimit(60);
@@ -37,11 +33,20 @@ void Game::init_monsters() {
 	monsters.insert(std::pair<string, Monster*> ("Clyde", clyde));
 }
 
+void Game::reset() {
+
+	grid->reset();
+
+	player->reset(grid);
+
+	for(auto &monster : monsters)
+		monster.second->reset(grid, monster.first);
+}
+
 /* --- PUBLIC FUNCTIONS --- */
 
 // Constructors & Destructor
 Game::Game() {
-	init_variables();
 	init_window();
 	init_grid();
 	init_player();
@@ -65,8 +70,6 @@ void Game::run() {
 		update();
 
 		render();
-
-		++timer;
 	}
 }
 
@@ -76,43 +79,45 @@ void Game::update_poll_events() {
 	while(window->pollEvent(e)) {
 		if(e.type == sf::Event::Closed)
 			window->close();
-
-		/*
-		// Pacman must walk until there is a wall in front of him (or until another command is triggered)
-		else if( e.type == sf::Event::KeyPressed && e.key.code == sf::Keyboard::Left)
-			player->set_direction(-1, 0);
-
-		else if( e.type == sf::Event::KeyPressed && e.key.code == sf::Keyboard::Up)
-			player->set_direction(0, -1);
-
-		else if( e.type == sf::Event::KeyPressed && e.key.code == sf::Keyboard::Right)
-			player->set_direction(1, 0);
-		
-		else if( e.type == sf::Event::KeyPressed && e.key.code == sf::Keyboard::Down)
-			player->set_direction(0, 1);
-		*/
 	}
 }
 
-
 void Game::update_input() {
+	static string prevKey = "Reset";
 
-	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && prevKey.compare("Left")) {
 		player->set_direction(-1, 0);
-
-	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-		player->set_direction(0, -1);
-
-	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-		player->set_direction(1, 0);
+		prevKey = "Left";
+	}
 		
-	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && prevKey.compare("Up")) {
+		player->set_direction(0, -1);
+		prevKey = "Up";
+	}
+
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && prevKey.compare("Right")) {
+		player->set_direction(1, 0);
+		prevKey = "Right";
+	}
+		
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && prevKey.compare("Down")) {
 		player->set_direction(0, 1);
+		prevKey = "Down";
+	}
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::R) && prevKey.compare("Reset")) {
+		prevKey = "Reset";
+		reset();
+	}
 }
 
 void Game::update() {
 
 	update_input();
+
+	// std::cout << "Update fn: Resetted Food: " << grid->remainingFood[0]->rows << " "<< grid->remainingFood[0]->cols << " "
+	// 		<< grid->remainingFood[0]->tileType << "\n";
+
 	grid->update();
 	player->update();
 	

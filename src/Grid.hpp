@@ -24,7 +24,7 @@ class Grid {
 
 		// Map
 		
-		std::vector<Tile*> remainingFood;
+		
 
 		/* --- PRIVATE DATA MEMBERS --- */
 
@@ -52,6 +52,7 @@ class Grid {
 	public:
 
 		Tile* map[GRID_ROWS][GRID_COLS];
+		std::vector<Tile*> remainingFood;
 		/* --- PUBLIC FUNCTIONS --- */
 
 		// Constructors & Destructor
@@ -66,6 +67,8 @@ class Grid {
 		// Not implemented yet !
 		// Updates each data member
 		void update();
+
+		void reset();
 
 		// Draws each data member
 		void render(sf::RenderTarget* target);

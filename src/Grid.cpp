@@ -171,7 +171,7 @@ void Grid::remove_food(c_uint& iFood, c_uint& jFood) {
 		if((*itr)->rows == iFood && (*itr)->cols == jFood) {
 			(*itr)->tileType = EMPTY_TILE;
 			return;
-		}
+		} 
 	}
 }
 
@@ -179,8 +179,11 @@ void Grid::remove_food(c_uint& iFood, c_uint& jFood) {
 void Grid::update() {
 
 	// Modifier map en fonction de remainingFood entre autres
+}
 
-
+void Grid::reset() {
+	for(std::size_t i = 0; i < remainingFood.size(); ++i)
+		remainingFood[i]->reset(i);
 }
 
 
@@ -188,7 +191,10 @@ void Grid::render(sf::RenderTarget* target) {
 
 	target->draw(vertices, &texture);
 
-	for(auto &foodTile : remainingFood)
+	for(auto &foodTile : remainingFood) {
 		if(foodTile->tileType == TREAT_TILE || foodTile->tileType == PILL_TILE)
 			foodTile->render(target);
+
+	}
+		
 }

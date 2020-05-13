@@ -17,81 +17,84 @@ class Character {
 		sf::Shape* shape;
 		float centreX, centreY;
 
-		// Movement related fields
+		// Movements
 		float movementSpeed;
 		int prevDirX, prevDirY, dirX, dirY;
 
+		// Restrictions
 		bool isMonsterHouseOpen;
 
+		// Tile Map
 		Grid* grid;
-
-		// The tile where the character is positioned
 		Tile* aboveTile;
-
-		// Time
 
 		// Add sickness, immunity, ... fields
 
 		/* --- PROTECTED FUNCTIONS --- */
 
-		
+		void init_variables(Grid* grid);
 
 		// Initialises the data members of the player
-		void init_player(Grid* grid, c_double movementSpeed, c_double centreX, c_double centreY);
+		void init_player();
 
 		// Initialises the data members of a monster
-		void init_monster(Grid* grid, c_string& name);
+		void init_monster(c_string& name);
 
 		// Updates the data member 'aboveTile' in regards to the tile on which is the player/monster
 		// Returns false if the character is using the underground tunnel
 		Tile* find_next_tile(c_int& dirX, c_int& dirY);
 
-		
-
+		// Returns true if the character is not moving
 		bool is_motionless();
 
-		
-
+		// Returns true if the character is using the underground tunnel (hidden)
 		bool is_under_tunnel();
 
+		// Returns true if the character is on the tile next to the tunnel and
+		// is moving in its direction
 		bool reaching_tunnel();
 
+		// Returns true if the character is on the tile next to the tunnel but 
+		// is moving in the opposite direction
 		bool moving_away_from_tunnel();
 
+		// Handles the movements when the character is under the tunnel, reaching it,
+		// or moving away from it. Returns false if the character is not at that position
 		bool handle_tunnel();
 
-		
-
+		// Returns true if the next tile is a wall or a restricted area (e.g., a door for PAC-MAN)
 		bool predict_wall_collision();
 
-		
-
+		// ???
 		bool is_turning();
 
+		// Returns true if the character is turning
 		bool is_changing_direction();
 
+		// Returns true if the character is U-Turning
 		bool is_changing_orientation();
 
+		// Returns true if the character changed direction before reaching the middle of the tile
 		bool is_right_angle_timing(c_float& centreX, c_float& centreY);
 
+		// Handles right angle turns
 		void handle_right_angle();
-
-		
 		
 	public:
 		/* --- PUBLIC FUNCTIONS --- */
 
 		// Constructors & Destructor
 		Character(Grid* grid);
+		
 		Character(Grid* grid, c_string& name);
+
 		virtual ~Character();
-		
-		
+
+		virtual void move() = 0;
+
+		void reset(Grid* grid);
 
 		virtual void update() = 0;
-
-		// Given a specific direction, moves the shape and keep 'aboveTile' updated
-		virtual void move() = 0;
 
 		// Draws the needed data members on the window
 		void render(sf::RenderTarget* target);

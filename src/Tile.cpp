@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Tile.hpp"
 
 /* --- PROTECTED FUNCTIONS --- */
@@ -35,6 +36,14 @@ bool Tile::is_restricted_area(bool isMonsterHouseOpen) {
 	return (tileType >= 1 && tileType <= 13) || (tileType == DOOR_TILE && !isMonsterHouseOpen);
 }
 
+void Tile::reset(c_uint& i) {
+	// Detects pills by hardcoding their position in the vector
+	if(i == 28 || i == 34 || i == 165 || i == 179)
+		tileType = PILL_TILE;
+	else
+		tileType = TREAT_TILE;
+}
+
 /* --- PUBLIC FUNCTIONS --- */
 
 // Constructors & Destructor
@@ -63,6 +72,5 @@ const sf::Vector2f Tile::get_tile_centre() const {
 }
 
 void Tile::render(sf::RenderTarget* target) {
-	if(food)
-		food->render(target);
+	food->render(target);
 }

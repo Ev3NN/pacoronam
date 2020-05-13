@@ -35,6 +35,8 @@ class Monster : public Character {
 		~Monster();
 
 		void move();
+
+		void reset(Grid* grid, c_string& name);
 		
 		// Not implemented yet !
 		// Updates each data member

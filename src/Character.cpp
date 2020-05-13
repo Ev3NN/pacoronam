@@ -3,26 +3,27 @@
 #include "Character.hpp"
 #include "utils.hpp"
 
-void Character::init_player(Grid* grid, c_double movementSpeed, c_double centreX, c_double centreY) {
-	this->movementSpeed = movementSpeed;
-	this->centreX = centreX;
-	this->centreY = centreY;
-	this->dirX = this->dirY = this->prevDirX = this->prevDirY = 0;
-	this->isMonsterHouseOpen = false;
+void Character::init_variables(Grid* grid) {
 	this->grid = grid;
 	this->aboveTile = nullptr;
+	this->dirX = this->dirY = this->prevDirX = this->prevDirY = 0;
 }
 
-void Character::init_monster(Grid* grid, c_string& name) {
+void Character::init_player() {
+	this->movementSpeed = REF_SPEED;
+	this->centreX = 14.f * CELL_SIZE;
+	this->centreY = 26.5f * CELL_SIZE;
+	this->isMonsterHouseOpen = false;
+}
+
+void Character::init_monster(c_string& name) {
 	this->movementSpeed = 0.95f * REF_SPEED;
 	this->isMonsterHouseOpen = true;
-	this->dirX = this->dirY = this->prevDirX = this->prevDirY = 0;
-	this->grid = grid;
-	this->aboveTile = nullptr;
-
+	
 	if(!name.compare("Blinky")) {
 		centreX = 14 * CELL_SIZE;
 		centreY = 14.5f * CELL_SIZE;
+		this->isMonsterHouseOpen = false;
 	}
 	else if(!name.compare("Pinky")) {
 		centreX = 14 * CELL_SIZE;
@@ -42,24 +43,20 @@ void Character::init_monster(Grid* grid, c_string& name) {
 
 // Constructors & Destructor
 Character::Character(Grid* grid) {
-	init_player(grid, REF_SPEED, 14.f * CELL_SIZE, 26.5f * CELL_SIZE);
+	init_variables(grid);
+	init_player();
 }
 
 Character::Character(Grid* grid, c_string& name) {
-	init_monster(grid, name);
+	init_variables(grid);
+	init_monster(name);
 }
 
 Character::~Character() {}
 
-
-
 Tile* Character::find_next_tile(c_int& dirX, c_int& dirY) {
 	return grid->get_tile_at(aboveTile->rows + dirY, aboveTile->cols + dirX);
 }
-
-
-
-
 
 bool Character::is_under_tunnel() {
 	return centreX <= 0 || centreX >= GRID_COLS * CELL_SIZE;
@@ -130,7 +127,7 @@ bool Character::is_turning() {
 }
 
 bool Character::is_changing_direction() {
-	return dirX != prevDirX || dirY != prevDirY;
+	return (dirX != prevDirX || dirY != prevDirY) && !is_motionless();
 }
 
 bool Character::is_changing_orientation() {

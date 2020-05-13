@@ -35,6 +35,10 @@ class Tile {
 
 		bool is_restricted_area(bool isMonsterHouseOpen);
 
+		void reset(c_uint& i);
+
+		
+
 	public:
 		/* --- PUBLIC FUNCTIONS --- */
 

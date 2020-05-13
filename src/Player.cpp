@@ -5,6 +5,7 @@
 #include "constants.hpp"
 
 /* --- PRIVATE FUNCTIONS --- */
+
 void Player::init_variables() {
 	takeCorner = isCornering = false;
 	digestCooldown = 0;
@@ -188,7 +189,6 @@ void Player::eat_food() {
 
 	if(aboveTile->tileType == TREAT_TILE)
 		handle_treat();
-
 	else if(aboveTile->tileType == PILL_TILE)
 		handle_pill();
 	else
@@ -267,6 +267,56 @@ bool Player::handle_turn() {
 	return true;
 }
 
+/* --- PUBLIC FUNCTIONS --- */
+
+// Constructors & Destructor
+
+Player::Player(Grid* grid) : Character(grid) {
+	init_variables();
+	init_shape();
+}
+
+
+Player::~Player() {
+	delete shape;
+}
+
+void Player::set_direction(c_int dirX, c_int dirY) {
+	if(is_under_tunnel() && dirX != prevDirX && dirY == prevDirY) {
+		// Useless ?
+		// this->dirX = prevDirX;
+		// this->dirY = prevDirY;
+
+		return;
+	}
+	else if(reaching_tunnel() && dirX != prevDirX && dirY == prevDirY) {
+		this->prevDirX = this->dirX = dirX;
+		this->prevDirY = this->dirY = dirY;
+	}
+	else if(moving_away_from_tunnel() && dirX != prevDirX && dirY == prevDirY) {
+		this->prevDirX = this->dirX = dirX;
+		this->prevDirY = this->dirY = dirY;
+	}
+
+	if(isCornering)
+		return;
+
+	if(is_changing_direction())
+		takeCorner = false;
+
+	this->dirX = dirX;
+	this->dirY = dirY;
+}
+
+void Player::update_digestion_cooldown() {
+	if(digestCooldown > 0)
+		// 1/FPS = 16ms. The duration of an iteration in the main loop. Our cheap timer
+		digestCooldown -= 16;
+	else
+		digestCooldown = 0;
+}
+
+
 void Player::move() {
 	// When pac-man
 	if(is_motionless())
@@ -320,80 +370,19 @@ void Player::move() {
 
 }
 
-/* --- PUBLIC FUNCTIONS --- */
-
-// Constructors & Destructor
-
-Player::Player(Grid* grid) : Character(grid) {
-	init_variables();
+void Player::reset(Grid* grid) {
+	Character::init_variables(grid);
+	init_player();
+	Player::init_variables();
 	init_shape();
-}
-
-
-Player::~Player() {
-	delete shape;
-}
-
-
-
-
-void Player::set_direction(c_int dirX, c_int dirY) {
-	if(is_under_tunnel() && dirX != prevDirX && dirY == prevDirY) {
-		// Useless ?
-		// this->dirX = prevDirX;
-		// this->dirY = prevDirY;
-
-		return;
-	}
-	else if(reaching_tunnel() && dirX != prevDirX && dirY == prevDirY) {
-		this->prevDirX = this->dirX = dirX;
-		this->prevDirY = this->dirY = dirY;
-	}
-	else if(moving_away_from_tunnel() && dirX != prevDirX && dirY == prevDirY) {
-		this->prevDirX = this->dirX = dirX;
-		this->prevDirY = this->dirY = dirY;
-	}
-
-	if(isCornering)
-		return;
-
-	if(is_changing_direction())
-		takeCorner = false;
-
-	this->dirX = dirX;
-	this->dirY = dirY;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void Player::update_digestion_cooldown() {
-	if(digestCooldown > 0)
-		// 1/FPS = 16ms. The duration of an iteration in the main loop. Our cheap timer
-		digestCooldown -= 16;
-	else
-		digestCooldown = 0;
 }
 
 void Player::update() {
 	
 	move();
+
+	// if(aboveTile)
+	// 	std::cout << "Tile: " << aboveTile->rows << " " << aboveTile->cols << " " << aboveTile->tileType << "\n"; 
 	eat_food();
 
 	update_digestion_cooldown();

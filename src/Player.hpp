@@ -90,6 +90,8 @@ class Player : public Character {
 
 		// Updates each data member
 		void update();
+
+	friend class Monster;
 };
 
 #endif // !PLAYER_HPP

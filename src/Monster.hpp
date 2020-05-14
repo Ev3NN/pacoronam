@@ -21,11 +21,12 @@ class Monster : public Character {
 		string name;
 
 		// Behaviours
+		Mode patternMode;
 		Mode mode;
 
 		// Time
 		int timer;
-		int modeCooldown, panicCooldown;
+		int patternModeCooldown, panicCooldown;
 
 		uint pillsCooldownSet;
 		// TImer de sortie
@@ -33,6 +34,8 @@ class Monster : public Character {
 		// Map
 		Tile* target;
 		Player* player;
+
+		// Add a 'mustUTurn' field: when a monster enters PANIC Mode, the next move is a U-Turn
 
 		/* --- 	PROTECTED FUNCTIONS --- */
 
@@ -47,6 +50,12 @@ class Monster : public Character {
 		void update_panic();
 
 		void update_time();
+
+		void update_chase_target();
+
+		void update_scatter_target();	
+
+		void update_target();
 
 		// Given a specific direction, moves the shape and keep 'aboveTile' updated
 		void move();

@@ -29,7 +29,9 @@ class Monster : public Character {
 		int patternModeCooldown, panicCooldown;
 
 		uint pillsCooldownSet;
+		
 		// TImer de sortie
+		uint startCountdown;
 
 		// Map
 		Tile* target;
@@ -44,6 +46,8 @@ class Monster : public Character {
 
 		// Initialises the shape (declared in base class)
 		void init_shape(c_string& name);
+
+		bool can_start_hunting();
 
 		void update_mode();
 

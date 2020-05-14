@@ -13,11 +13,19 @@ void Monster::init_variables(Player* player, c_string name) {
 	if(!name.compare("Blinky")) {
 		mode = Mode::CHASE;
 		patternModeCooldown = 39;
+		startCountdown = 0;
 	}
 	else {
 		mode = Mode::SCATTER;
 		patternModeCooldown = 9;
 	}
+
+	startCountdown = 0;
+
+	if(!name.compare("Inky"))
+		startCountdown = 15;
+	else if(!name.compare("Clyde"))
+		startCountdown = 60;
 	
 	patternMode = mode;
 	pillsCooldownSet = 0;
@@ -61,6 +69,16 @@ void Monster::update_panic() {
 	}
 }
 
+bool Monster::can_start_hunting() {
+	if(!player->aboveTile)
+		return false;
+
+	if(!startCountdown /* add eaten food condition */)
+		return true;
+
+	return false;
+}
+
 void Monster::update_mode() {
 	if(patternModeCooldown)
 		return;
@@ -80,6 +98,9 @@ void Monster::update_time() {
 
 	if(timer)
 		return;
+
+	if(startCountdown > 0)
+		--startCountdown;
 
 	if(panicCooldown > 0)
 		--panicCooldown;
@@ -105,7 +126,9 @@ void Monster::update_chase_target() {
 	if(!name.compare("Blinky"))
 		target = player->aboveTile;
 	else if(!name.compare("Pinky"))
-		target = player->find_next_tile(4 * player->prevDirX, 4 * player->prevDirY);
+		// Need to check bounds
+		// target = player->find_next_tile(4 * player->prevDirX, 4 * player->prevDirY);
+		target = nullptr;
 	else if(!name.compare("Inky"))
 		target = nullptr;
 	else if(!name.compare("Clyde")) {
@@ -169,12 +192,23 @@ void Monster::reset(Grid* grid, Player* player, c_string& name) {
 }
 
 void Monster::update() {
-	if(!player->aboveTile)
+	// if(name.compare("Inky"))
+	// 	return;
+
+	if(!can_start_hunting()) {
+
+		update_time();
+
+		// std::cout << "Not yet, " << name << "\n";
+		// std::cout << "Time remaining: " << startCountdown << "\n";
+
 		return;
+	}
+
+	// std::cout << "U can go !\n";
 
 	// To debug for only one monster
-	if(name.compare("Blinky"))
-		return;
+	
 
 	update_panic();
 		
@@ -182,6 +216,8 @@ void Monster::update() {
 	update_mode();
 
 	update_target();
+
+
 
 
 	// Seems working

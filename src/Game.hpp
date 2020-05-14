@@ -39,7 +39,20 @@ class Game {
 		// Initialises the foor monsters
 		void init_monsters();
 
+		// Notifies the program of a triggered event
+		void update_poll_events();
+
+		// Notifies the Player if a specific valid key is pressed
+		void update_input();
+
+		// Updates each data member
+		void update();
+
+		// Resets the game to its initial state
 		void reset();
+
+		// Draws each data member
+		void render();
 
 	public:
 		/* --- PUBLIC FUNCTIONS --- */
@@ -50,18 +63,6 @@ class Game {
 		
 		// Launches the main loop
 		void run();
-
-		// Notifies the program of a triggered event
-		void update_poll_events();
-
-		// Not needed anymore ?
-		void update_input();
-
-		// Updates each data member
-		void update();
-
-		// Draws each data member
-		void render();
 };
 
 #endif // !GAME_HPP

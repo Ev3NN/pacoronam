@@ -1,6 +1,5 @@
 #include "Food.hpp"
 
-#include <iostream>
 /* --- PRIVATE FUNCTIONS --- */
 
 void Food::init_shape(c_TileType& tileType, c_uint& rows, c_uint& cols) {
@@ -22,7 +21,7 @@ void Food::init_shape(c_TileType& tileType, c_uint& rows, c_uint& cols) {
 
 /* --- PUBLIC FUNCTIONS --- */
 
-// Constructors & Destructor
+// Constructor
 Food::Food(c_TileType& tileType, c_uint& rows, c_uint& cols) {
 	init_shape(tileType, rows, cols);
 }

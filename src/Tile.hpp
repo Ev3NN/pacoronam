@@ -8,7 +8,7 @@
 
 // Represents a tile in the grid
 class Tile {
-	public:
+	private:
 		/* --- PROTECTED DATA MEMBERS --- */
 
 		// Dimensions
@@ -20,11 +20,12 @@ class Tile {
 
 		Food* food;
 		
-		/* --- PROTECTED FUNCTIONS --- */
+		/* --- PRIVATE FUNCTIONS --- */
 
 		// Initialises the data members
 		void init_variables(c_TileType tileType = NO_TILE, c_uint rows = 0, c_uint cols = 0);
 
+		// Initialises the food
 		void init_food();
 
 		// Returns the bounds of the tile
@@ -33,11 +34,11 @@ class Tile {
 		// Returns true if the two tiles are the same
 		bool compare(Tile* nextTile);
 
+		// Returns true if the tile is restricted
 		bool is_restricted_area(bool isMonsterHouseOpen);
 
+		// Resets the game to its initial state
 		void reset(c_uint& i);
-
-		
 
 	public:
 		/* --- PUBLIC FUNCTIONS --- */
@@ -47,14 +48,17 @@ class Tile {
 		Tile(c_TileType& tileType, c_uint& rows, c_uint& cols);
 		~Tile();
 		
-		// Returns the coordinates of tile's middle point
+		// Returns the coordinates of the tile's centre
 		const sf::Vector2f get_tile_centre() const;
 
 		// Draws each data member
 		void render(sf::RenderTarget* target);
-	// Need to refactor this
 	
-	// Character needs to access theses data members to use 'aboveTile'
+	// Keeps the data members and functions private
+	friend class Character;
+	friend class Player;
+	friend class Monster;
+	friend class Grid;
 };
 
 #endif // !TILE_HPP

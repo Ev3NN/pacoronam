@@ -32,7 +32,6 @@ bool Grid::init_texture() {
 		return init_std_texture();
 }
 
-
 bool Grid::init_tileset_keys() {
 
 	std::ifstream ifs(TILESET_KEYS_FILENAME);
@@ -96,49 +95,15 @@ void Grid::init_map() {
 			map[i][j] = newTile;
 
 			if(tileKey == TREAT_TILE || tileKey == PILL_TILE)
-				// Adds a food tile in the map and in remainingFood
-				remainingFood.push_back(newTile);
-			
-		}
-			
+				// Adds a food tile in the map and in foodTiles
+				foodTiles.push_back(newTile);
+		}		
 	}
 }
 
-
-/* Tile* Grid::get_next_tile(c_int& i, c_int& j, c_int& dirX, c_int& dirY) {
-
-	// Special case: pacman is not on a tile at the beginning
-	if(i == -1 && j == -1) {
-		if(dirX == -1)
-			return &map[26][13];
-		else if(dirX == 1)
-			return &map[26][14];
-		else
-			return nullptr;
-	}
-
-	c_int iNextTile = i + dirY;
-	c_int jNextTile = j + dirX;
-	// Prevents signed and unsigned comparison
-	c_int rows = this->rows;
-	c_int cols = this->cols;
-
-	//std::cout << "i, j: " << iNextTile << " " << jNextTile << "\n";
-
-	if(iNextTile >= 0 && iNextTile < rows && jNextTile >= 0 && jNextTile < cols) {
-		//std::cout << "i_n j_n" << iNextTile << " " << jNextTile << "\n";
-
-		return &map[iNextTile][jNextTile];
-	}
-		
-	return nullptr;
-} */
-
 /* --- PUBLIC FUNCTIONS --- */
 
-// Constructors & Destructor
-
-
+// Constructor & Destructor
 Grid::Grid() {
 
 	// Does not handle potential errors !!! -> Exceptions ?
@@ -155,9 +120,7 @@ Grid::~Grid() {
 	for(size_t i = 0; i < rows; ++i)
 		for(size_t j = 0; j < cols; ++j)
 			delete map[i][j];
-
 }
-
 
 Tile* Grid::get_tile_at(c_uint& i, c_uint& j) {
 	return map[i][j];
@@ -165,7 +128,7 @@ Tile* Grid::get_tile_at(c_uint& i, c_uint& j) {
 
 void Grid::remove_food(c_uint& iFood, c_uint& jFood) {
 	
-	for(auto itr = remainingFood.begin(); itr != remainingFood.end(); ++itr) {
+	for(auto itr = foodTiles.begin(); itr != foodTiles.end(); ++itr) {
 		// Find the food tile we want
 		// Memory leaks or double free if I try to do this properly (using erase and delete)
 		if((*itr)->rows == iFood && (*itr)->cols == jFood) {
@@ -175,15 +138,14 @@ void Grid::remove_food(c_uint& iFood, c_uint& jFood) {
 	}
 }
 
-
 void Grid::update() {
 
-	// Modifier map en fonction de remainingFood entre autres
+	// Modifier map en fonction de foodTiles entre autres
 }
 
 void Grid::reset() {
-	for(std::size_t i = 0; i < remainingFood.size(); ++i)
-		remainingFood[i]->reset(i);
+	for(std::size_t i = 0; i < foodTiles.size(); ++i)
+		foodTiles[i]->reset(i);
 }
 
 
@@ -191,10 +153,7 @@ void Grid::render(sf::RenderTarget* target) {
 
 	target->draw(vertices, &texture);
 
-	for(auto &foodTile : remainingFood) {
+	for(auto &foodTile : foodTiles)
 		if(foodTile->tileType == TREAT_TILE || foodTile->tileType == PILL_TILE)
 			foodTile->render(target);
-
-	}
-		
 }

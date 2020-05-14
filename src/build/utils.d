@@ -1,5 +1,3 @@
-build/utils.o: utils.cpp utils.hpp constants.hpp
+build/utils.o: utils.cpp utils.hpp
 
 utils.hpp:
-
-constants.hpp:

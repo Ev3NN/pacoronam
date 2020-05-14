@@ -7,24 +7,24 @@
 
 // Derived class representing a tile where there was a treat or a power pill initially
 class Food {
-	public:
-		/* --- PROTECTED DATA MEMBERS --- */
+	private:
+		/* --- PRIVATE DATA MEMBERS --- */
 
 		// Visual appearance
-
 		sf::CircleShape shape;
 
-		// Add an 'eaten' data member
+		// Add an 'eaten' data member so we do not need to hardcode
+		// index of PILL_TILE while resetting
 
-		/* --- PROTECTED FUNCTIONS --- */
+		/* --- PRIVATE FUNCTIONS --- */
 
 		// Initialises the shape
 		void init_shape(c_TileType& tileType, c_uint& rows, c_uint& cols);
 
-	//public:
+	public:
 		/* --- PUBLIC FUNCTIONS --- */
 
-		// Constructors & Destuctor
+		// Constructor
 		Food(c_TileType& tileType, c_uint& rows, c_uint& cols);
 
 		// Draws the needed data members on the window

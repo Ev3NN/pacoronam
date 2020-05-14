@@ -9,6 +9,7 @@
 void Player::init_variables() {
 	takeCorner = isCornering = false;
 	digestCooldown = 0;
+	pillsEating = 0;
 }
 
 void Player::init_shape() {
@@ -25,6 +26,14 @@ void Player::init_shape() {
 
 bool Player::is_digesting() {
 	return digestCooldown > 0;
+}
+
+void Player::update_digestion_cooldown() {
+	if(digestCooldown > 0)
+		// 1/FPS = 16ms. The duration of an iteration in the main loop. Our cheap timer
+		digestCooldown -= 1;
+	else
+		digestCooldown = 0;
 }
 
 bool Player::handle_initial_move() {
@@ -74,8 +83,6 @@ bool Player::handle_blocking_wall() {
 	else {
 		centreX += movementSpeed * dirX;
 		centreY += movementSpeed * dirY;
-
-		// Clear nextTurDir ?
 
 		shape->move(movementSpeed * dirX, movementSpeed * dirY);
 
@@ -175,29 +182,6 @@ bool Player::handle_wall() {
 	return false;
 }
 
-void Player::handle_treat() {
-
-}
-
-void Player::handle_pill() {
-
-}
-
-void Player::eat_food() {
-	if(!aboveTile)
-		return;
-
-	if(aboveTile->tileType == TREAT_TILE)
-		handle_treat();
-	else if(aboveTile->tileType == PILL_TILE)
-		handle_pill();
-	else
-		return;
-
-	grid->remove_food(aboveTile->rows, aboveTile->cols);
-	digestCooldown = 32;
-}
-
 bool Player::handle_cornering() {
 	if(!takeCorner)
 		return false;
@@ -267,55 +251,31 @@ bool Player::handle_turn() {
 	return true;
 }
 
-/* --- PUBLIC FUNCTIONS --- */
-
-// Constructors & Destructor
-
-Player::Player(Grid* grid) : Character(grid) {
-	init_variables();
-	init_shape();
+void Player::handle_treat() {
+	
 }
 
+void Player::handle_pill() {
 
-Player::~Player() {
-	delete shape;
+	std::cout << "je mange une pill power\n";
+	++pillsEating;
+
 }
 
-void Player::set_direction(c_int dirX, c_int dirY) {
-	if(is_under_tunnel() && dirX != prevDirX && dirY == prevDirY) {
-		// Useless ?
-		// this->dirX = prevDirX;
-		// this->dirY = prevDirY;
-
-		return;
-	}
-	else if(reaching_tunnel() && dirX != prevDirX && dirY == prevDirY) {
-		this->prevDirX = this->dirX = dirX;
-		this->prevDirY = this->dirY = dirY;
-	}
-	else if(moving_away_from_tunnel() && dirX != prevDirX && dirY == prevDirY) {
-		this->prevDirX = this->dirX = dirX;
-		this->prevDirY = this->dirY = dirY;
-	}
-
-	if(isCornering)
+void Player::eat_food() {
+	if(!aboveTile)
 		return;
 
-	if(is_changing_direction())
-		takeCorner = false;
-
-	this->dirX = dirX;
-	this->dirY = dirY;
-}
-
-void Player::update_digestion_cooldown() {
-	if(digestCooldown > 0)
-		// 1/FPS = 16ms. The duration of an iteration in the main loop. Our cheap timer
-		digestCooldown -= 16;
+	if(aboveTile->tileType == TREAT_TILE)
+		handle_treat();
+	else if(aboveTile->tileType == PILL_TILE)
+		handle_pill();
 	else
-		digestCooldown = 0;
-}
+		return;
 
+	grid->remove_food(aboveTile->rows, aboveTile->cols);
+	digestCooldown = 2;
+}
 
 void Player::move() {
 	// When pac-man
@@ -330,20 +290,12 @@ void Player::move() {
 	if(handle_initial_move())
 		return;
 
-	// std::cout << "AboveTile:\n\t";
-	// std::cout << "TileType: " << aboveTile->tileType << "\n\t";
-	// std::cout << "Rows: " << aboveTile->rows << "\n\t";
-	// std::cout << "Cols: " << aboveTile->cols << "\n";
-
 	// If the next tile is in the tunnel
 	if(handle_tunnel())
 		return;
 
 	if(handle_wall())
 		return;
-
-	// if(takeCorner == true)
-	// 	return;
 
 	if(handle_turn())
 		return;
@@ -365,9 +317,56 @@ void Player::move() {
 		
 		prevDirX = dirX;
 		prevDirY = dirY;
+	}
+}
 
+/* --- PUBLIC FUNCTIONS --- */
+
+// Constructors & Destructor
+
+Player::Player(Grid* grid) : Character(grid) {
+	init_variables();
+	init_shape();
+}
+
+
+Player::~Player() {
+	delete shape;
+}
+
+Tile** Player::get_pacman_tile() {
+	return &aboveTile;
+}
+
+uint Player::get_pills_eating() {
+	return pillsEating;
+}
+
+void Player::set_pills_eating(c_uint pillsEating) {
+	this->pillsEating = pillsEating;
+}
+
+void Player::set_direction(c_int dirX, c_int dirY) {
+	if(is_under_tunnel() && dirX != prevDirX && dirY == prevDirY)
+		return;
+
+	else if(reaching_tunnel() && dirX != prevDirX && dirY == prevDirY) {
+		this->prevDirX = this->dirX = dirX;
+		this->prevDirY = this->dirY = dirY;
+	}
+	else if(moving_away_from_tunnel() && dirX != prevDirX && dirY == prevDirY) {
+		this->prevDirX = this->dirX = dirX;
+		this->prevDirY = this->dirY = dirY;
 	}
 
+	if(isCornering)
+		return;
+
+	if(is_changing_direction())
+		takeCorner = false;
+
+	this->dirX = dirX;
+	this->dirY = dirY;
 }
 
 void Player::reset(Grid* grid) {
@@ -380,10 +379,6 @@ void Player::reset(Grid* grid) {
 void Player::update() {
 	
 	move();
-
-	// if(aboveTile)
-	// 	std::cout << "Tile: " << aboveTile->rows << " " << aboveTile->cols << " " << aboveTile->tileType << "\n"; 
 	eat_food();
-
 	update_digestion_cooldown();
 }

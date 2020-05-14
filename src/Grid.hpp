@@ -23,10 +23,10 @@ class Grid {
 		sf::VertexArray vertices;
 
 		// Map
-		
-		
+		Tile* map[GRID_ROWS][GRID_COLS];
+		std::vector<Tile*> foodTiles;
 
-		/* --- PRIVATE DATA MEMBERS --- */
+		/* --- PRIVATE FUNCTIONS --- */
 
 		// Initialises the texture. Returns false if an error occured
 		bool init_std_texture();
@@ -45,36 +45,29 @@ class Grid {
 
 		// Initialises the map
 		void init_map();
-
-		// Returns a specific tile after a movement
-		// Tile* get_next_tile(c_int& i, c_int& j, c_int& dirX, c_int& dirY);
 	
 	public:
 
-		Tile* map[GRID_ROWS][GRID_COLS];
-		std::vector<Tile*> remainingFood;
 		/* --- PUBLIC FUNCTIONS --- */
 
 		// Constructors & Destructor
 		Grid();
 		~Grid();
 
-		//Returns the Tile or FoodTile at a specified coordinate
+		//Returns the Tile or FoodTile given the specified coordinates
 		Tile* get_tile_at(c_uint& i, c_uint& j);
 
+		// Transform the FoodTile given the specified coordinates into an EMPTY_CELL
 		void remove_food(c_uint& i, c_uint& j);
 
-		// Not implemented yet !
 		// Updates each data member
 		void update();
-
+		
+		// Resets the game to its initial state
 		void reset();
 
 		// Draws each data member
 		void render(sf::RenderTarget* target);
-
-	// Need to refactor this
-	// Character needs to computes the next tile to update its data members
 };
 
 #endif // !GRID_HPP

@@ -47,6 +47,24 @@ class Character {
 		// Returns true if the character is not moving
 		bool is_motionless();
 
+		// Reliable ???
+		bool is_turning();
+
+		// Returns true if the character is turning
+		bool is_changing_direction();
+
+		// Returns true if the character is U-Turning
+		bool is_changing_orientation();
+
+		// Returns true if the next tile is a wall or a restricted area (e.g., a door for PAC-MAN)
+		bool predict_wall_collision();
+
+		// Returns true if the character changed direction before reaching the middle of the tile
+		bool is_right_angle_timing(c_float& centreX, c_float& centreY);
+
+		// Handles right angle turns
+		void handle_right_angle();
+
 		// Returns true if the character is using the underground tunnel (hidden)
 		bool is_under_tunnel();
 
@@ -61,24 +79,6 @@ class Character {
 		// Handles the movements when the character is under the tunnel, reaching it,
 		// or moving away from it. Returns false if the character is not at that position
 		bool handle_tunnel();
-
-		// Returns true if the next tile is a wall or a restricted area (e.g., a door for PAC-MAN)
-		bool predict_wall_collision();
-
-		// ???
-		bool is_turning();
-
-		// Returns true if the character is turning
-		bool is_changing_direction();
-
-		// Returns true if the character is U-Turning
-		bool is_changing_orientation();
-
-		// Returns true if the character changed direction before reaching the middle of the tile
-		bool is_right_angle_timing(c_float& centreX, c_float& centreY);
-
-		// Handles right angle turns
-		void handle_right_angle();
 		
 	public:
 		/* --- PUBLIC FUNCTIONS --- */
@@ -90,10 +90,7 @@ class Character {
 
 		virtual ~Character();
 
-		virtual void move() = 0;
-
-		void reset(Grid* grid);
-
+		// Updates each data member
 		virtual void update() = 0;
 
 		// Draws the needed data members on the window

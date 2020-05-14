@@ -15,6 +15,11 @@ class Player : public Character {
 		bool takeCorner, isCornering;
 		int digestCooldown;
 
+		uint pillsEating;
+		
+		// Might add a boolean set to true when extending pill power
+		// to compute the score properly
+
 		/* --- PROTECTED FUNCTIONS --- */
 
 		// Initialises data members specific to Player
@@ -25,6 +30,9 @@ class Player : public Character {
 
 		// Returns true if PAC-MAN is still digesting
 		bool is_digesting();
+
+		// Reduce the timer
+		void update_digestion_cooldown();
 		
 		// Handles the special case of the initial move.
 		// Returns true if it is not the first move
@@ -41,6 +49,14 @@ class Player : public Character {
 		// Handles cases where there is a wall in PAC-MAN's direction
 		bool handle_wall();
 
+		// Handles corner turns
+		// Returns false if PAC-MAN cannot make a corner-turn
+		bool handle_cornering();
+
+		// Handles turning decisions
+		// Returns false if PAC-MAN does not turn
+		bool handle_turn();
+
 		// Handles cases where PAC-MAN eats a treat 
 		void handle_treat();
 
@@ -50,13 +66,8 @@ class Player : public Character {
 		// Handles cases where PAC-MAN eats food (treat or pill)
 		void eat_food();
 
-		// Handles corner turns
-		// Returns false if PAC-MAN cannot make a corner-turn
-		bool handle_cornering();
-
-		// Handles turning decisions
-		// Returns false if PAC-MAN does not turn
-		bool handle_turn();
+		// Given a specific direction, moves the shape and keep 'aboveTile' updated
+		void move();
 
 	public:
 		/* --- PUBLIC FUNCTIONS --- */
@@ -65,14 +76,14 @@ class Player : public Character {
 		Player(Grid* grid);
 		~Player();
 
+		Tile** get_pacman_tile();
+
+		uint get_pills_eating();
+
+		void set_pills_eating(c_uint pillsEating);
+
 		// Sets the directions given the horiontal and vertical directions
 		void set_direction(c_int dirX, c_int dirY);
-
-		// Reduce the timer
-		void update_digestion_cooldown();
-
-		// Given a specific direction, moves the shape and keep 'aboveTile' updated
-		void move();
 
 		// Resets PAC-MAN to his initial state
 		void reset(Grid* grid);

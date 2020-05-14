@@ -9,7 +9,7 @@
 
 void Game::init_window() {
 	window = new sf::RenderWindow(sf::VideoMode(GRID_COLS * CELL_SIZE, GRID_ROWS * CELL_SIZE), "PACoronam");
-	window->setFramerateLimit(60);
+	window->setFramerateLimit(FPS);
 	window->setKeyRepeatEnabled(false);
 }
 
@@ -22,55 +22,15 @@ void Game::init_player() {
 }
 
 void Game::init_monsters() {
-	Monster* blinky = new Monster(grid, "Blinky");
-	Monster* pinky = new Monster(grid, "Pinky");
-	Monster* inky = new Monster(grid, "Inky");
-	Monster* clyde = new Monster(grid, "Clyde");
+	Monster* blinky = new Monster(grid, player, "Blinky");
+	Monster* pinky = new Monster(grid, player, "Pinky");
+	Monster* inky = new Monster(grid, player, "Inky");
+	Monster* clyde = new Monster(grid, player, "Clyde");
 
 	monsters.insert(std::pair<string, Monster*> ("Blinky", blinky));
 	monsters.insert(std::pair<string, Monster*> ("Pinky", pinky));
 	monsters.insert(std::pair<string, Monster*> ("Inky", inky));
 	monsters.insert(std::pair<string, Monster*> ("Clyde", clyde));
-}
-
-void Game::reset() {
-
-	grid->reset();
-
-	player->reset(grid);
-
-	for(auto &monster : monsters)
-		monster.second->reset(grid, monster.first);
-}
-
-/* --- PUBLIC FUNCTIONS --- */
-
-// Constructors & Destructor
-Game::Game() {
-	init_window();
-	init_grid();
-	init_player();
-	init_monsters();
-}
-
-Game::~Game() {
-	delete window;
-	delete grid;
-	delete player;
-
-	for(auto &monster : monsters)
-		delete monster.second;
-}
-
-void Game::run() {
-
-	while(window->isOpen()) {
-		update_poll_events();
-
-		update();
-
-		render();
-	}
 }
 
 void Game::update_poll_events() {
@@ -114,15 +74,23 @@ void Game::update_input() {
 void Game::update() {
 
 	update_input();
-
-	// std::cout << "Update fn: Resetted Food: " << grid->remainingFood[0]->rows << " "<< grid->remainingFood[0]->cols << " "
-	// 		<< grid->remainingFood[0]->tileType << "\n";
-
+	
 	grid->update();
 	player->update();
 	
 	for(auto &monster : monsters)
 		monster.second->update();
+		
+}
+
+void Game::reset() {
+
+	grid->reset();
+
+	player->reset(grid);
+
+	for(auto &monster : monsters)
+		monster.second->reset(grid, player, monster.first);
 }
 
 void Game::render() {
@@ -135,4 +103,33 @@ void Game::render() {
 		monster.second->render(window);
 
 	window->display();
+}
+
+/* --- PUBLIC FUNCTIONS --- */
+
+// Constructor & Destructor
+Game::Game() {
+	init_window();
+	init_grid();
+	init_player();
+	init_monsters();
+}
+
+Game::~Game() {
+	delete window;
+	delete grid;
+	delete player;
+
+	for(auto &monster : monsters)
+		delete monster.second;
+}
+
+void Game::run() {
+	while(window->isOpen()) {
+		update_poll_events();
+
+		update();
+
+		render();
+	}
 }

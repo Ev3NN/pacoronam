@@ -1,6 +1,9 @@
 #ifndef PLAYER_HPP
 #define PLAYER_HPP
 
+#include <SFML/Graphics.hpp>
+#include <memory>
+
 #include "Character.hpp"
 #include "Grid.hpp"
 
@@ -11,7 +14,7 @@ class Player : public Character {
 	protected:
 
 		/* --- PROTECTED DATA MEMBERS --- */
-
+		
 		bool takeCorner, isCornering;
 		int digestCooldown;
 
@@ -73,10 +76,7 @@ class Player : public Character {
 		/* --- PUBLIC FUNCTIONS --- */
 
 		// Constructors & Destructor
-		Player(Grid* grid);
-		~Player();
-
-		Tile** get_pacman_tile();
+		Player(std::shared_ptr<Grid> grid);
 
 		uint get_pills_eating();
 
@@ -86,7 +86,7 @@ class Player : public Character {
 		void set_direction(c_int dirX, c_int dirY);
 
 		// Resets PAC-MAN to his initial state
-		void reset(Grid* grid);
+		void reset(std::shared_ptr<Grid>);
 
 		// Updates each data member
 		void update();

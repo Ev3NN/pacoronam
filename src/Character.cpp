@@ -5,7 +5,7 @@
 
 /* --- PROTECTED FUNCTIONS --- */
 
-void Character::init_variables(Grid* grid) {
+void Character::init_variables(std::shared_ptr<Grid> grid) {
 	this->grid = grid;
 	this->aboveTile = nullptr;
 	this->dirX = this->dirY = this->prevDirX = this->prevDirY = 0;
@@ -41,7 +41,7 @@ void Character::init_monster(c_string& name) {
 	}
 }
 
-Tile* Character::find_next_tile(c_int& dirX, c_int& dirY) {
+std::shared_ptr<Tile> Character::find_next_tile(c_int& dirX, c_int& dirY) {
 	return grid->get_tile_at(aboveTile->rows + dirY, aboveTile->cols + dirX);
 }
 
@@ -63,7 +63,7 @@ bool Character::is_changing_orientation() {
 }
 
 bool Character::predict_wall_collision() {
-	Tile* nextTile = find_next_tile(dirX, dirY);
+	Tile* nextTile = find_next_tile(dirX, dirY).get();
 
 	return nextTile->is_restricted_area(isMonsterHouseOpen);
 }
@@ -92,8 +92,8 @@ void Character::handle_right_angle() {
 		centreX += movementSpeed * prevDirX;
 		centreY += movementSpeed * prevDirY;
 
-		Tile* nextTile = find_next_tile(prevDirX, prevDirY);
-		if(nextTile->get_bounds().contains(sf::Vector2f(centreX, centreY)))
+		auto nextTile = std::make_shared<Tile>(find_next_tile(prevDirX, prevDirY));
+		if(nextTile.get()->get_bounds().contains(sf::Vector2f(centreX, centreY)))
 			aboveTile = nextTile;
 
 		shape->move(movementSpeed * prevDirX, movementSpeed * prevDirY);
@@ -176,17 +176,15 @@ bool Character::handle_tunnel() {
 /* --- PUBLIC FUNCTIONS --- */
 
 // Constructors & Destructor
-Character::Character(Grid* grid) {
+Character::Character(std::shared_ptr<Grid> grid) {
 	init_variables(grid);
 	init_player();
 }
 
-Character::Character(Grid* grid, c_string& name) {
+Character::Character(std::shared_ptr<Grid> grid, c_string& name) {
 	init_variables(grid);
 	init_monster(name);
 }
-
-Character::~Character() {}
 
 void Character::render(sf::RenderTarget* target) {
 

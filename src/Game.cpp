@@ -14,23 +14,23 @@ void Game::init_window() {
 }
 
 void Game::init_grid() {
-	grid = new Grid();
+	grid = std::make_shared<Grid>();
 }
 
 void Game::init_player() {
-	player = new Player(grid);
+	player = std::make_shared<Player>(grid);
 }
 
 void Game::init_monsters() {
-	Monster* blinky = new Monster(grid, player, "Blinky");
-	Monster* pinky = new Monster(grid, player, "Pinky");
-	Monster* inky = new Monster(grid, player, "Inky");
-	Monster* clyde = new Monster(grid, player, "Clyde");
+	auto blinky = std::make_shared<Monster>(grid, player, "Blinky");
+	auto pinky = std::make_shared<Monster>(grid, player, "Pinky");
+	auto inky = std::make_shared<Monster>(grid, player, blinky, "Inky");
+	auto clyde = std::make_shared<Monster>(grid, player, "Clyde");
 
-	monsters.insert(std::pair<string, Monster*> ("Blinky", blinky));
-	monsters.insert(std::pair<string, Monster*> ("Pinky", pinky));
-	monsters.insert(std::pair<string, Monster*> ("Inky", inky));
-	monsters.insert(std::pair<string, Monster*> ("Clyde", clyde));
+	monsters.insert(std::pair<string, std::shared_ptr<Monster>> ("Blinky", blinky));
+	monsters.insert(std::pair<string, std::shared_ptr<Monster>> ("Pinky", pinky));
+	monsters.insert(std::pair<string, std::shared_ptr<Monster>> ("Inky", inky));
+	monsters.insert(std::pair<string, std::shared_ptr<Monster>> ("Clyde", clyde));
 }
 
 void Game::update_poll_events() {
@@ -50,7 +50,6 @@ void Game::update_input() {
 		prevKey = "Left";
 	}
 		
-
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && prevKey.compare("Up")) {
 		player->set_direction(0, -1);
 		prevKey = "Up";
@@ -117,11 +116,6 @@ Game::Game() {
 
 Game::~Game() {
 	delete window;
-	delete grid;
-	delete player;
-
-	for(auto &monster : monsters)
-		delete monster.second;
 }
 
 void Game::run() {

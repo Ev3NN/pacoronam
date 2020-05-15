@@ -2,6 +2,7 @@
 #include <fstream>
 
 #include "Grid.hpp"
+#include "utils.hpp"
 
 /* --- PRIVATE FUNCTIONS --- */
 
@@ -90,14 +91,14 @@ void Grid::init_map() {
 
 			TileType tileKey = tilesetKeys[i * cols + j];
 
-			Tile* newTile = new Tile(tileKey, i, j);
+			auto newTile = std::make_shared<Tile>(tileKey, i, j);
 
 			map[i][j] = newTile;
 
 			if(tileKey == TREAT_TILE || tileKey == PILL_TILE)
 				// Adds a food tile in the map and in foodTiles
 				foodTiles.push_back(newTile);
-		}		
+		}
 	}
 }
 
@@ -116,26 +117,24 @@ Grid::Grid() {
 	init_map();
 }
 
-Grid::~Grid() {
-	for(size_t i = 0; i < rows; ++i)
-		for(size_t j = 0; j < cols; ++j)
-			delete map[i][j];
-}
-
-Tile* Grid::get_tile_at(c_uint& i, c_uint& j) {
+std::shared_ptr<Tile> Grid::get_tile_at(c_uint& i, c_uint& j) {
 	return map[i][j];
 }
 
-void Grid::remove_food(c_uint& iFood, c_uint& jFood) {
-	
-	for(auto itr = foodTiles.begin(); itr != foodTiles.end(); ++itr) {
+void Grid::remove_food(c_int& iFood, c_int& jFood) {
+	if(is_out_of_bounds(iFood, jFood))
+		return;
+
+	for(auto foodTile : foodTiles) {
 		// Find the food tile we want
 		// Memory leaks or double free if I try to do this properly (using erase and delete)
-		if((*itr)->rows == iFood && (*itr)->cols == jFood) {
-			(*itr)->tileType = EMPTY_TILE;
+		if(foodTile->rows == iFood && foodTile->cols == jFood) {
+			foodTile->tileType = EMPTY_TILE;
+			//std::cout << "food reset: " << foodTile->tileType << "\n";
 			return;
 		} 
 	}
+
 }
 
 void Grid::update() {

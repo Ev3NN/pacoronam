@@ -9,3 +9,7 @@ double distance(sf::Vector2f p1, sf::Vector2f p2) {
 	
 	return sqrt(x + y);
 }
+
+bool is_out_of_bounds(c_int& rows, c_int& cols) {
+	return rows < 0 || rows >= (int) GRID_ROWS || cols < 0 || cols >= (int) GRID_COLS;
+}

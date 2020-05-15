@@ -2,6 +2,7 @@
 #define TILE_HPP
 
 #include <SFML/Graphics.hpp>
+#include <memory>
 
 #include "constants.hpp"
 #include "Food.hpp"
@@ -13,23 +14,25 @@ class Tile {
 
 		// Dimensions
 		static c_uint pxSize = CELL_SIZE;
-		uint rows, cols;
+		int rows, cols;
 
 		// Content of the tile
 		TileType tileType;
 
-		Food* food;
+		std::shared_ptr<Food> food;
 		
 		/* --- PRIVATE FUNCTIONS --- */
 
 		// Initialises the data members
-		void init_variables(c_TileType tileType = NO_TILE, c_uint rows = 0, c_uint cols = 0);
+		void init_variables(c_TileType tileType = VOID_TILE, c_uint rows = 0, c_uint cols = 0);
 
 		// Initialises the food
 		void init_food();
 
 		// Returns the bounds of the tile
 		sf::FloatRect get_bounds();
+
+		bool is_out_of_bounds();
 
 		// Returns true if the two tiles are the same
 		bool compare(Tile* nextTile);
@@ -46,8 +49,12 @@ class Tile {
 		// Constructors & Destructor
 		Tile();
 		Tile(c_TileType& tileType, c_uint& rows, c_uint& cols);
-		~Tile();
-		
+		// ~Tile();
+
+		Tile(const std::shared_ptr<Tile>& other);
+
+		// Tile(const Tile& other);
+		// Tile& operator=(Tile other);
 		// Returns the coordinates of the tile's centre
 		const sf::Vector2f get_tile_centre() const;
 
@@ -59,6 +66,7 @@ class Tile {
 	friend class Player;
 	friend class Monster;
 	friend class Grid;
+	friend class Game;
 };
 
 #endif // !TILE_HPP

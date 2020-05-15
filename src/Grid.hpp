@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include <memory>
 
 #include "constants.hpp"
 #include "Tile.hpp"
@@ -23,8 +24,11 @@ class Grid {
 		sf::VertexArray vertices;
 
 		// Map
-		Tile* map[GRID_ROWS][GRID_COLS];
-		std::vector<Tile*> foodTiles;
+
+
+
+		std::shared_ptr<Tile> map[GRID_ROWS][GRID_COLS];
+		std::vector<std::shared_ptr<Tile>> foodTiles;
 
 		/* --- PRIVATE FUNCTIONS --- */
 
@@ -52,13 +56,12 @@ class Grid {
 
 		// Constructors & Destructor
 		Grid();
-		~Grid();
 
 		//Returns the Tile or FoodTile given the specified coordinates
-		Tile* get_tile_at(c_uint& i, c_uint& j);
+		std::shared_ptr<Tile> get_tile_at(c_uint& i, c_uint& j);
 
 		// Transform the FoodTile given the specified coordinates into an EMPTY_CELL
-		void remove_food(c_uint& i, c_uint& j);
+		void remove_food(c_int& i, c_int& j);
 
 		// Updates each data member
 		void update();
@@ -69,5 +72,6 @@ class Grid {
 		// Draws each data member
 		void render(sf::RenderTarget* target);
 };
+
 
 #endif // !GRID_HPP

@@ -2,6 +2,7 @@
 #define CHARACTER_HPP
 
 #include <SFML/Graphics.hpp>
+#include <memory>
 
 #include "constants.hpp"
 #include "Grid.hpp"
@@ -13,8 +14,8 @@ class Character {
 	protected:
 		/* --- PROTECTED DATA MEMBERS --- */
 
-		// Visual appearance
-		sf::Shape* shape;
+		// Position
+		std::unique_ptr<sf::Shape> shape;
 		float centreX, centreY;
 
 		// Movements
@@ -25,14 +26,14 @@ class Character {
 		bool isMonsterHouseOpen;
 
 		// Tile Map
-		Grid* grid;
-		Tile* aboveTile;
+		std::shared_ptr<Grid> grid;
+		std::shared_ptr<Tile> aboveTile;	
 
 		// Add sickness, immunity, ... fields
 
 		/* --- PROTECTED FUNCTIONS --- */
 
-		void init_variables(Grid* grid);
+		void init_variables(std::shared_ptr<Grid> grid);
 
 		// Initialises the data members of the player
 		void init_player();
@@ -42,7 +43,7 @@ class Character {
 
 		// Updates the data member 'aboveTile' in regards to the tile on which is the player/monster
 		// Returns false if the character is using the underground tunnel
-		Tile* find_next_tile(c_int& dirX, c_int& dirY);
+		std::shared_ptr<Tile> find_next_tile(c_int& dirX, c_int& dirY);
 
 		// Returns true if the character is not moving
 		bool is_motionless();
@@ -84,11 +85,11 @@ class Character {
 		/* --- PUBLIC FUNCTIONS --- */
 
 		// Constructors & Destructor
-		Character(Grid* grid);
+		Character(std::shared_ptr<Grid> grid);
 		
-		Character(Grid* grid, c_string& name);
+		Character(std::shared_ptr<Grid> grid, c_string& name);
 
-		virtual ~Character();
+		virtual ~Character() = default;
 
 		// Updates each data member
 		virtual void update() = 0;

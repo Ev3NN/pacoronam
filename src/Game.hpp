@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <map>
+#include <memory>
 
 #include "Grid.hpp"
 #include "Player.hpp"
@@ -18,12 +19,11 @@ class Game {
 		sf::RenderWindow* window;
 
 		// Grid
-		Grid* grid;
+		std::shared_ptr<Grid> grid;
 
 		// Characters
-		Player* player;
-		std::map<string, Monster*> monsters;
-
+		std::shared_ptr<Player> player;
+		std::map<string, std::shared_ptr<Monster>> monsters;
 		
 		/* --- PRIVATE FUNCTIONS --- */
 		

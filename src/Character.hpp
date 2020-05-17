@@ -20,10 +20,10 @@ class Character {
 
 		// Movements
 		float movementSpeed;
-		int prevDirX, prevDirY, dirX, dirY;
+		int movementDirX, movementDirY, nextDirX, nextDirY;
 
 		// Restrictions
-		bool isMonsterHouseOpen;
+		bool canEnterMonsterHouse;
 
 		// Tile Map
 		std::shared_ptr<Grid> grid;
@@ -43,7 +43,7 @@ class Character {
 
 		// Updates the data member 'aboveTile' in regards to the tile on which is the player/monster
 		// Returns false if the character is using the underground tunnel
-		std::shared_ptr<Tile> find_next_tile(c_int& dirX, c_int& dirY);
+		std::shared_ptr<Tile> find_next_tile(c_int& nextDirX, c_int& nextDirY);
 
 		// Returns true if the character is not moving
 		bool is_motionless();

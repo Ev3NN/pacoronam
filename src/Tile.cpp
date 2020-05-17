@@ -36,13 +36,13 @@ bool Tile::compare(Tile* nextTile) {
 	return false;
 }
 
-bool Tile::is_restricted_area(bool isMonsterHouseOpen) {
-	return (tileType >= 1 && tileType <= 13) || (tileType == DOOR_TILE && !isMonsterHouseOpen);
+bool Tile::is_restricted_area(bool canEnterMonsterHouse) {
+	return (tileType >= 1 && tileType <= 13) || (tileType == DOOR_TILE && !canEnterMonsterHouse);
 }
 
 void Tile::reset(c_uint& i) {
 	// Detects pills by hardcoding their position in the vector
-	if(i == 28 || i == 34 || i == 165 || i == 179)
+	if(i == 30 || i == 35 || i == 158 || i == 177)
 		tileType = PILL_TILE;
 	else
 		tileType = TREAT_TILE;

@@ -38,7 +38,7 @@ class Tile {
 		bool compare(Tile* nextTile);
 
 		// Returns true if the tile is restricted
-		bool is_restricted_area(bool isMonsterHouseOpen);
+		bool is_restricted_area(bool canEnterMonsterHouse);
 
 		// Resets the game to its initial state
 		void reset(c_uint& i);

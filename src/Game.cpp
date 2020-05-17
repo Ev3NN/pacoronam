@@ -8,8 +8,9 @@
 /* --- PRIVATE FUNCTIONS --- */
 
 void Game::init_window() {
-	window = new sf::RenderWindow(sf::VideoMode(GRID_COLS * CELL_SIZE, GRID_ROWS * CELL_SIZE), "PACoronam");
+	window = std::make_shared<sf::RenderWindow>(sf::VideoMode(GRID_COLS * CELL_SIZE, GRID_ROWS * CELL_SIZE), "PACoronam");
 	window->setFramerateLimit(FPS);
+	window->setVerticalSyncEnabled(false);
 	window->setKeyRepeatEnabled(false);
 }
 
@@ -17,20 +18,28 @@ void Game::init_grid() {
 	grid = std::make_shared<Grid>();
 }
 
+void Game::init_score() {
+	score = std::make_shared<Score>();
+}
+
 void Game::init_player() {
-	player = std::make_shared<Player>(grid);
+	player = std::make_shared<Player>(grid, score);
 }
 
 void Game::init_monsters() {
-	auto blinky = std::make_shared<Monster>(grid, player, "Blinky");
-	auto pinky = std::make_shared<Monster>(grid, player, "Pinky");
-	auto inky = std::make_shared<Monster>(grid, player, blinky, "Inky");
-	auto clyde = std::make_shared<Monster>(grid, player, "Clyde");
+	auto blinky = std::make_shared<Monster>(grid, player, score, "Blinky");
+	auto pinky = std::make_shared<Monster>(grid, player, score, "Pinky");
+	auto inky = std::make_shared<Monster>(grid, player, score, blinky, "Inky");
+	auto clyde = std::make_shared<Monster>(grid, player, score, "Clyde");
 
 	monsters.insert(std::pair<string, std::shared_ptr<Monster>> ("Blinky", blinky));
 	monsters.insert(std::pair<string, std::shared_ptr<Monster>> ("Pinky", pinky));
 	monsters.insert(std::pair<string, std::shared_ptr<Monster>> ("Inky", inky));
 	monsters.insert(std::pair<string, std::shared_ptr<Monster>> ("Clyde", clyde));
+}
+
+void Game::init_text() {
+	text = std::make_unique<Text>();
 }
 
 void Game::update_poll_events() {
@@ -76,15 +85,31 @@ void Game::update() {
 	
 	grid->update();
 	player->update();
+	if(player->get_above_tile()) {
+		text->in_game_text();
+	}
 	
-	for(auto &monster : monsters)
-		monster.second->update();
-		
+	
+	// Blinky MUST be updated before Inky
+
+	
+
+	monsters["Blinky"]->update();
+	monsters["Pinky"]->update();
+	monsters["Inky"]->update();
+	monsters["Clyde"]->update();
+
+	if(player->get_above_tile())
+		Monster::update_timer();
 }
 
 void Game::reset() {
 
 	grid->reset();
+
+	score->reset();
+
+	text->reset();
 
 	player->reset(grid);
 
@@ -95,11 +120,17 @@ void Game::reset() {
 void Game::render() {
 	window->clear();
 
-	grid->render(window);
-	player->render(window);
-	
-	for(auto &monster : monsters)
-		monster.second->render(window);
+	grid->render(window.get());
+	player->render(window.get());
+
+	// Display the monsters in this order. Loop is not reliable
+	monsters["Blinky"]->render(window.get());
+	monsters["Pinky"]->render(window.get());
+	monsters["Inky"]->render(window.get());
+	monsters["Clyde"]->render(window.get());
+
+	score->render(window.get());
+	text->render(window.get());
 
 	window->display();
 }
@@ -110,12 +141,10 @@ void Game::render() {
 Game::Game() {
 	init_window();
 	init_grid();
+	init_score();
 	init_player();
 	init_monsters();
-}
-
-Game::~Game() {
-	delete window;
+	init_text();
 }
 
 void Game::run() {

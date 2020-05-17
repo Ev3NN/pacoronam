@@ -8,24 +8,24 @@
 void Character::init_variables(std::shared_ptr<Grid> grid) {
 	this->grid = grid;
 	this->aboveTile = nullptr;
-	this->dirX = this->dirY = this->prevDirX = this->prevDirY = 0;
+	this->nextDirX = this->nextDirY = this->movementDirX = this->movementDirY = 0;
 }
 
 void Character::init_player() {
-	this->movementSpeed = REF_SPEED;
+	this->movementSpeed = 1.5f * REF_SPEED;
 	this->centreX = 14.f * CELL_SIZE;
 	this->centreY = 26.5f * CELL_SIZE;
-	this->isMonsterHouseOpen = false;
+	this->canEnterMonsterHouse = false;
 }
 
 void Character::init_monster(c_string& name) {
 	this->movementSpeed = 0.95f * REF_SPEED;
-	this->isMonsterHouseOpen = true;
+	this->canEnterMonsterHouse = true;
 	
 	if(!name.compare("Blinky")) {
 		centreX = 14 * CELL_SIZE;
 		centreY = 14.5f * CELL_SIZE;
-		this->isMonsterHouseOpen = false;
+		this->canEnterMonsterHouse = false;
 	}
 	else if(!name.compare("Pinky")) {
 		centreX = 14 * CELL_SIZE;
@@ -46,40 +46,40 @@ std::shared_ptr<Tile> Character::find_next_tile(c_int& dirX, c_int& dirY) {
 }
 
 bool Character::is_motionless() {
-	return dirX == 0 && dirY == 0;
+	return nextDirX == 0 && nextDirY == 0;
 }
 
 bool Character::is_turning() {
 	// is_motionless needed ?
-	return dirX != prevDirX && dirY != prevDirY && !is_motionless();
+	return nextDirX != movementDirX && nextDirY != movementDirY && !is_motionless();
 }
 
 bool Character::is_changing_direction() {
-	return (dirX != prevDirX || dirY != prevDirY) && !is_motionless();
+	return (nextDirX != movementDirX || nextDirY != movementDirY) && !is_motionless();
 }
 
 bool Character::is_changing_orientation() {
-	return (dirX == prevDirX && dirY != prevDirY) || (dirX != prevDirX && dirY == prevDirY);
+	return (nextDirX == movementDirX && nextDirY != movementDirY) || (nextDirX != movementDirX && nextDirY == movementDirY);
 }
 
 bool Character::predict_wall_collision() {
-	Tile* nextTile = find_next_tile(dirX, dirY).get();
+	Tile* nextTile = find_next_tile(nextDirX, nextDirY).get();
 
-	return nextTile->is_restricted_area(isMonsterHouseOpen);
+	return nextTile->is_restricted_area(canEnterMonsterHouse);
 }
 
 bool Character::is_right_angle_timing(c_float& centreX, c_float& centreY) {
 
-	if(prevDirX == 1 && centreX <= aboveTile->get_bounds().left + CELL_SIZE / 2.f)
+	if(movementDirX == 1 && centreX <= aboveTile->get_bounds().left + CELL_SIZE / 2.f)
 		return true;
 
-	else if(prevDirX == -1 && centreX >= aboveTile->get_bounds().left + CELL_SIZE / 2.f)
+	else if(movementDirX == -1 && centreX >= aboveTile->get_bounds().left + CELL_SIZE / 2.f)
 		return true;
 
-	else if(prevDirY == 1 && centreY <= aboveTile->get_bounds().top + CELL_SIZE / 2.f)
+	else if(movementDirY == 1 && centreY <= aboveTile->get_bounds().top + CELL_SIZE / 2.f)
 		return true;
 
-	else if(prevDirY == -1 && centreY >= aboveTile->get_bounds().top + CELL_SIZE / 2.f)
+	else if(movementDirY == -1 && centreY >= aboveTile->get_bounds().top + CELL_SIZE / 2.f)
 		return true;
 
 	else
@@ -89,20 +89,20 @@ bool Character::is_right_angle_timing(c_float& centreX, c_float& centreY) {
 void Character::handle_right_angle() {
 	if(!is_right_angle_timing(centreX, centreY)) {
 
-		centreX += movementSpeed * prevDirX;
-		centreY += movementSpeed * prevDirY;
+		centreX += movementSpeed * movementDirX;
+		centreY += movementSpeed * movementDirY;
 
-		auto nextTile = std::make_shared<Tile>(find_next_tile(prevDirX, prevDirY));
+		auto nextTile = std::make_shared<Tile>(find_next_tile(movementDirX, movementDirY));
 		if(nextTile.get()->get_bounds().contains(sf::Vector2f(centreX, centreY)))
 			aboveTile = nextTile;
 
-		shape->move(movementSpeed * prevDirX, movementSpeed * prevDirY);
+		shape->move(movementSpeed * movementDirX, movementSpeed * movementDirY);
 		
 		return;
 	}
 
-	float nextCentreX = centreX + movementSpeed * prevDirX;
-	float nextCentreY = centreY + movementSpeed * prevDirY;
+	float nextCentreX = centreX + movementSpeed * movementDirX;
+	float nextCentreY = centreY + movementSpeed * movementDirY;
 
 	// Si le prochain move amène le centre de pacman plus loin qu'au milieu de la tile
 	if(!is_right_angle_timing(nextCentreX, nextCentreY)) {
@@ -111,15 +111,15 @@ void Character::handle_right_angle() {
 		centreY = aboveTile->get_tile_centre().y;
 		shape->setPosition(centreX, centreY);
 
-		prevDirX = dirX;
-		prevDirY = dirY;
+		movementDirX = nextDirX;
+		movementDirY = nextDirY;
 
 		return;
 	}
 
 	centreX = nextCentreX;
 	centreY = nextCentreY;
-	shape->move(movementSpeed * prevDirX, movementSpeed * prevDirY);
+	shape->move(movementSpeed * movementDirX, movementSpeed * movementDirY);
 }
 
 bool Character::is_under_tunnel() {
@@ -127,18 +127,18 @@ bool Character::is_under_tunnel() {
 }
 
 bool Character::reaching_tunnel() {
-	if(centreX <= CELL_SIZE && centreX >= 0 && prevDirX == -1)
+	if(centreX <= CELL_SIZE && centreX >= 0 && movementDirX == -1)
 		return true;
-	if(centreX >= (GRID_COLS - 1) * CELL_SIZE && centreX <= GRID_COLS * CELL_SIZE && prevDirX == 1)
+	if(centreX >= (GRID_COLS - 1) * CELL_SIZE && centreX <= GRID_COLS * CELL_SIZE && movementDirX == 1)
 		return true;
 
 	return false;
 }
 
 bool Character::moving_away_from_tunnel() {
-	if(centreX <= CELL_SIZE && centreX >= 0 && prevDirX == 1)
+	if(centreX <= CELL_SIZE && centreX >= 0 && movementDirX == 1)
 		return true;
-	if(centreX >= (GRID_COLS - 1) * CELL_SIZE && centreX <= GRID_COLS * CELL_SIZE && prevDirX == -1)
+	if(centreX >= (GRID_COLS - 1) * CELL_SIZE && centreX <= GRID_COLS * CELL_SIZE && movementDirX == -1)
 		return true;
 
 	return false;
@@ -146,19 +146,20 @@ bool Character::moving_away_from_tunnel() {
 
 bool Character::handle_tunnel() {
 
-	if(!reaching_tunnel() && !is_under_tunnel())
+	if(!reaching_tunnel() && !is_under_tunnel()) {
 		return false;
+	}
 
-	float nextCentreX = centreX + movementSpeed * prevDirX;
+	float nextCentreX = centreX + movementSpeed * movementDirX;
 
-	if(nextCentreX <= - (int) CELL_SIZE && prevDirX == -1) {
+	if(nextCentreX <= - (int) CELL_SIZE && movementDirX == -1) {
 		aboveTile = grid->get_tile_at(aboveTile->rows, GRID_COLS - 1);
 		centreX = (GRID_COLS + 1) * CELL_SIZE;
 		shape->setPosition(centreX, centreY);
 
 		return true;
 	}
-	else if(nextCentreX >= (GRID_COLS + 1) * CELL_SIZE && prevDirX == 1) {
+	else if(nextCentreX >= (GRID_COLS + 1) * CELL_SIZE && movementDirX == 1) {
 		aboveTile = grid->get_tile_at(aboveTile->rows, 0);
 		centreX = - (int) CELL_SIZE;
 		shape->setPosition(centreX, centreY);
@@ -167,7 +168,7 @@ bool Character::handle_tunnel() {
 	}
 	else {
 		centreX = nextCentreX;
-		shape->move(movementSpeed * prevDirX, 0);
+		shape->move(movementSpeed * movementDirX, 0);
 
 		return true;
 	}

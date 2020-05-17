@@ -6,6 +6,7 @@
 
 #include "Character.hpp"
 #include "Grid.hpp"
+#include "Score.hpp"
 
 // Derived class representing the sole player Pac-Man
 
@@ -18,7 +19,10 @@ class Player : public Character {
 		bool takeCorner, isCornering;
 		int digestCooldown;
 
-		uint pillsEating;
+		bool isExtendingPill;
+
+		// Score
+		std::shared_ptr<Score> score;
 		
 		// Might add a boolean set to true when extending pill power
 		// to compute the score properly
@@ -30,6 +34,9 @@ class Player : public Character {
 
 		// Initialises the shape
 		void init_shape();
+
+		// Initialises the score
+		void init_score(std::shared_ptr<Score> score);
 
 		// Returns true if PAC-MAN is still digesting
 		bool is_digesting();
@@ -76,14 +83,14 @@ class Player : public Character {
 		/* --- PUBLIC FUNCTIONS --- */
 
 		// Constructors & Destructor
-		Player(std::shared_ptr<Grid> grid);
+		Player(std::shared_ptr<Grid> grid, std::shared_ptr<Score> score);
 
-		uint get_pills_eating();
-
-		void set_pills_eating(c_uint pillsEating);
+		void set_extending(c_bool isExtendingPill);
 
 		// Sets the directions given the horiontal and vertical directions
-		void set_direction(c_int dirX, c_int dirY);
+		void set_direction(c_int nextDirX, c_int nextDirY);
+
+		Tile* get_above_tile();
 
 		// Resets PAC-MAN to his initial state
 		void reset(std::shared_ptr<Grid>);

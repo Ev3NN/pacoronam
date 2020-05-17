@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "Player.hpp"
+#include "Monster.hpp"
 #include "constants.hpp"
 
 /* --- PRIVATE FUNCTIONS --- */
@@ -9,7 +10,7 @@
 void Player::init_variables() {
 	takeCorner = isCornering = false;
 	digestCooldown = 0;
-	pillsEating = 0;
+	isExtendingPill = true;
 }
 
 void Player::init_shape() {
@@ -21,6 +22,10 @@ void Player::init_shape() {
 	shape->setFillColor(sf::Color::Yellow);
 	shape->setOrigin(radius, radius);
 	shape->setPosition(14 * CELL_SIZE, 26.5f * CELL_SIZE);	
+}
+
+void Player::init_score(std::shared_ptr<Score> score) {
+	this->score = score;
 }
 
 bool Player::is_digesting() {
@@ -42,22 +47,22 @@ bool Player::handle_initial_move() {
 		return false;
 
 	// Only horizontal movements can change this state (nullptr)
-	if(dirX == 1)
+	if(nextDirX == 1)
 		aboveTile = grid->get_tile_at(26, 14);
 
-	else if(dirX == -1)
+	else if(nextDirX == -1)
 		aboveTile = grid->get_tile_at(26, 13);
 
 	else
 		return true;
 
-	centreX += movementSpeed * dirX;
-	centreY += movementSpeed * dirY;
+	centreX += movementSpeed * nextDirX;
+	centreY += movementSpeed * nextDirY;
 
-	shape->move(movementSpeed * dirX, movementSpeed * dirY);
+	shape->move(movementSpeed * nextDirX, movementSpeed * nextDirY);
 
-	prevDirX = dirX;
-	prevDirY = dirY;
+	movementDirX = nextDirX;
+	movementDirY = nextDirY;
 
 	return true;
 }
@@ -69,22 +74,22 @@ bool Player::handle_blocking_wall() {
 	// Can be put in a fonction imo
 
 	// Right
-	if(dirX == 1 && (centreX + movementSpeed) >= aboveTile->get_tile_centre().x) 
+	if(nextDirX == 1 && (centreX + movementSpeed) >= aboveTile->get_tile_centre().x) 
 		centreX = aboveTile->get_tile_centre().x;
 	// Left
-	else if(dirX == -1 && (centreX - movementSpeed) <= aboveTile->get_tile_centre().x)
+	else if(nextDirX == -1 && (centreX - movementSpeed) <= aboveTile->get_tile_centre().x)
 		centreX = aboveTile->get_tile_centre().x;		
 	// Down
-	else if(dirY == 1 && (centreY + movementSpeed) >= aboveTile->get_tile_centre().y) 
+	else if(nextDirY == 1 && (centreY + movementSpeed) >= aboveTile->get_tile_centre().y) 
 		centreY = aboveTile->get_tile_centre().y;
 	//Up
-	else if(dirY == -1 && (centreY - movementSpeed) <= aboveTile->get_tile_centre().y)
+	else if(nextDirY == -1 && (centreY - movementSpeed) <= aboveTile->get_tile_centre().y)
 		centreY = aboveTile->get_tile_centre().y;
 	else {
-		centreX += movementSpeed * dirX;
-		centreY += movementSpeed * dirY;
+		centreX += movementSpeed * nextDirX;
+		centreY += movementSpeed * nextDirY;
 
-		shape->move(movementSpeed * dirX, movementSpeed * dirY);
+		shape->move(movementSpeed * nextDirX, movementSpeed * nextDirY);
 
 		return true;
 	}
@@ -94,9 +99,9 @@ bool Player::handle_blocking_wall() {
 
 	// We cannot have prevDir (0, 0), otherwise Pinky cannot
 	// update his target properly in CHASE MODE
-	//prevDirX = prevDirY;dirX = dirY = 0;
+	//movementDirX = movementDirY;nextDirX = nextDirY = 0;
 
-	dirX = dirY = 0;
+	nextDirX = nextDirY = 0;
 
 	return true;
 }
@@ -105,13 +110,13 @@ bool Player::handle_non_blocking_wall() {
 	if(!is_turning())
 		return false;
 
-	auto nextTile = std::make_shared<Tile>(find_next_tile(prevDirX, prevDirY));
+	auto nextTile = std::make_shared<Tile>(find_next_tile(movementDirX, movementDirY));
 	// Handles cases where the player changes the direction but at the end of the hall, 
 	//there is also a wall in that new direction
-	if(nextTile.get()->is_restricted_area(isMonsterHouseOpen)) {
+	if(nextTile.get()->is_restricted_area(canEnterMonsterHouse)) {
 		// The situation becomes equivalent to moving until there is a wall in the direction of movement
-		dirX = prevDirX;
-		dirY = prevDirY;
+		nextDirX = movementDirX;
+		nextDirY = movementDirY;
 
 		takeCorner = false;
 
@@ -119,35 +124,35 @@ bool Player::handle_non_blocking_wall() {
 			return true;
 	}
 
-	// Il n'y a pas de wall dans le sens de mouvement
+	// Il n'y a pas de wall dans le sens de movement
 
 	takeCorner = true;
 
-	float nextCentreX = centreX + movementSpeed * prevDirX;
-	float nextCentreY = centreY + movementSpeed * prevDirY;
+	float nextCentreX = centreX + movementSpeed * movementDirX;
+	float nextCentreY = centreY + movementSpeed * movementDirY;
 	sf::Vector2f nextCentre = sf::Vector2f(nextCentreX, nextCentreY);
 
 	if(nextTile->get_bounds().contains(nextCentre)) {
 		// std::cout << "Rentre dans la cond contains\n";
 		aboveTile = nextTile;
 
-		auto checkTile = find_next_tile(dirX, dirY).get();
-		if(!checkTile->is_restricted_area(isMonsterHouseOpen)) {
+		auto checkTile = find_next_tile(nextDirX, nextDirY).get();
+		if(!checkTile->is_restricted_area(canEnterMonsterHouse)) {
 			// std::cout << "Rentre dans le restricted area\n";
 
-			if(prevDirX == -1) {
+			if(movementDirX == -1) {
 				centreX = aboveTile->get_bounds().left + CELL_SIZE;
 				centreY = aboveTile->get_bounds().top + CELL_SIZE / 2.f;
 			}
-			else if(prevDirX == 1) {
+			else if(movementDirX == 1) {
 				centreX = aboveTile->get_bounds().left;
 				centreY = aboveTile->get_bounds().top + CELL_SIZE / 2.f;
 			}
-			else if(prevDirY == 1) {
+			else if(movementDirY == 1) {
 				centreX = aboveTile->get_bounds().left + CELL_SIZE / 2.f;
 				centreY = aboveTile->get_bounds().top;
 			}
-			else if(prevDirY == -1) {
+			else if(movementDirY == -1) {
 				centreX = aboveTile->get_bounds().left + CELL_SIZE / 2.f;
 				centreY = aboveTile->get_bounds().top + CELL_SIZE;
 			}
@@ -167,7 +172,7 @@ bool Player::handle_non_blocking_wall() {
 
 	// std::cout << "final centre x: " << centreX << " " << centreY << "\n";
 
-	shape->move(movementSpeed * prevDirX, movementSpeed * prevDirY);
+	shape->move(movementSpeed * movementDirX, movementSpeed * movementDirY);
 
 	return true;
 }
@@ -193,39 +198,39 @@ bool Player::handle_cornering() {
 
 	isCornering = true;
 
-	int cornerDirX = prevDirX + dirX;
-	int cornerDirY = prevDirY + dirY;
+	int cornernextDirX = movementDirX + nextDirX;
+	int cornernextDirY = movementDirY + nextDirY;
 
-	float nextCentreX = centreX + movementSpeed * cornerDirX;
-	float nextCentreY = centreY + movementSpeed * cornerDirY;
+	float nextCentreX = centreX + movementSpeed * cornernextDirX;
+	float nextCentreY = centreY + movementSpeed * cornernextDirY;
 	sf::Vector2f nextCentre = sf::Vector2f(nextCentreX, nextCentreY);
 
-	auto nextTile = std::make_shared<Tile>(find_next_tile(dirX, dirY));
+	auto nextTile = std::make_shared<Tile>(find_next_tile(nextDirX, nextDirY));
 	if(nextTile.get()->get_bounds().contains(nextCentre)) {
 		aboveTile = nextTile;
 
 		// Centrer
-		if(dirX == -1) {
+		if(nextDirX == -1) {
 			centreX = aboveTile->get_bounds().left + CELL_SIZE;
 			centreY = aboveTile->get_bounds().top + CELL_SIZE / 2.f;
 		}
-		else if(dirX == 1) {
+		else if(nextDirX == 1) {
 			centreX = aboveTile->get_bounds().left;
 			centreY = aboveTile->get_bounds().top + CELL_SIZE / 2.f;
 		}
-		else if(dirY == -1) {
+		else if(nextDirY == -1) {
 			centreX = aboveTile->get_bounds().left + CELL_SIZE / 2.f;
 			centreY = aboveTile->get_bounds().top + CELL_SIZE;
 		}
-		else if(dirY == 1) {
+		else if(nextDirY == 1) {
 			centreX = aboveTile->get_bounds().left + CELL_SIZE / 2.f;
 			centreY = aboveTile->get_bounds().top;
 		}
 
 		shape->setPosition(centreX, centreY);
 
-		prevDirX = dirX;
-		prevDirY = dirY;
+		movementDirX = nextDirX;
+		movementDirY = nextDirY;
 
 		takeCorner = false;
 		isCornering = false;
@@ -233,11 +238,11 @@ bool Player::handle_cornering() {
 		return true;
 	}
 
-	centreX += movementSpeed * cornerDirX;
-	centreY += movementSpeed * cornerDirY;
+	centreX += movementSpeed * cornernextDirX;
+	centreY += movementSpeed * cornernextDirY;
 
 
-	shape->move(movementSpeed * cornerDirX, movementSpeed * cornerDirY);
+	shape->move(movementSpeed * cornernextDirX, movementSpeed * cornernextDirY);
 
 	return true;
 }
@@ -257,13 +262,12 @@ bool Player::handle_turn() {
 }
 
 void Player::handle_treat() {
-	
+	score->food_eat();
 }
 
 void Player::handle_pill() {
-
-	++pillsEating;
-
+	score->pill_eat();
+	Monster::set_panic_cooldown();
 }
 
 void Player::eat_food() {
@@ -292,18 +296,12 @@ void Player::move() {
 
 	// Digesting takes a whole frame when Pac-Man cannot move
 	if(is_digesting()) {
-		std::cout << "hi\n";
 		//std::cout << "digesting ?\n";
 		return;
 	}
 		
-		
-	
-
-
 	// Special case: Pac-Man begins between two tiles
 	if(handle_initial_move()) {
-		std::cout << "hi\n";
 		return;
 	}
 		
@@ -320,20 +318,20 @@ void Player::move() {
 		return;
 
 	else {
-		auto nextTile = std::make_shared<Tile>(find_next_tile(dirX, dirY));
-		float nextCentreX = centreX + movementSpeed * dirX;
-		float nextCentreY = centreY + movementSpeed * dirY;
+		auto nextTile = std::make_shared<Tile>(find_next_tile(nextDirX, nextDirY));
+		float nextCentreX = centreX + movementSpeed * nextDirX;
+		float nextCentreY = centreY + movementSpeed * nextDirY;
 
 		if(nextTile->get_bounds().contains(sf::Vector2f(nextCentreX, nextCentreY)))
 			aboveTile = nextTile;
 
-		centreX += movementSpeed * dirX;
-		centreY += movementSpeed * dirY;
+		centreX += movementSpeed * nextDirX;
+		centreY += movementSpeed * nextDirY;
 		
-		shape->move(movementSpeed * dirX, movementSpeed * dirY);
+		shape->move(movementSpeed * nextDirX, movementSpeed * nextDirY);
 		
-		prevDirX = dirX;
-		prevDirY = dirY;
+		movementDirX = nextDirX;
+		movementDirY = nextDirY;
 	}
 }
 
@@ -341,30 +339,27 @@ void Player::move() {
 
 // Constructors & Destructor
 
-Player::Player(std::shared_ptr<Grid> grid) : Character(grid) {
+Player::Player(std::shared_ptr<Grid> grid, std::shared_ptr<Score> score) : Character(grid) {
 	init_variables();
 	init_shape();
+	init_score(score);
 }
 
-uint Player::get_pills_eating() {
-	return pillsEating;
+void Player::set_extending(c_bool isExtendingPill) {
+	this->isExtendingPill = isExtendingPill;
 }
 
-void Player::set_pills_eating(c_uint pillsEating) {
-	this->pillsEating = pillsEating;
-}
-
-void Player::set_direction(c_int dirX, c_int dirY) {
-	if(is_under_tunnel() && dirX != prevDirX && dirY == prevDirY)
+void Player::set_direction(c_int nextDirX, c_int nextDirY) {
+	if(is_under_tunnel() && nextDirX != movementDirX && nextDirY == movementDirY)
 		return;
 
-	else if(reaching_tunnel() && dirX != prevDirX && dirY == prevDirY) {
-		this->prevDirX = this->dirX = dirX;
-		this->prevDirY = this->dirY = dirY;
+	else if(reaching_tunnel() && nextDirX != movementDirX && nextDirY == movementDirY) {
+		this->movementDirX = this->nextDirX = nextDirX;
+		this->movementDirY = this->nextDirY = nextDirY;
 	}
-	else if(moving_away_from_tunnel() && dirX != prevDirX && dirY == prevDirY) {
-		this->prevDirX = this->dirX = dirX;
-		this->prevDirY = this->dirY = dirY;
+	else if(moving_away_from_tunnel() && nextDirX != movementDirX && nextDirY == movementDirY) {
+		this->movementDirX = this->nextDirX = nextDirX;
+		this->movementDirY = this->nextDirY = nextDirY;
 	}
 
 	if(isCornering)
@@ -373,8 +368,12 @@ void Player::set_direction(c_int dirX, c_int dirY) {
 	if(is_changing_direction())
 		takeCorner = false;
 
-	this->dirX = dirX;
-	this->dirY = dirY;
+	this->nextDirX = nextDirX;
+	this->nextDirY = nextDirY;
+}
+
+Tile* Player::get_above_tile() {
+	return aboveTile.get();
 }
 
 void Player::reset(std::shared_ptr<Grid> grid) {
@@ -386,10 +385,9 @@ void Player::reset(std::shared_ptr<Grid> grid) {
 
 void Player::update() {
 	
-
-
 	move();
 	eat_food();
+
 	// std::cout << "In eat food - (4, 2): " << grid->get_tile_at(26, 12)->tileType << "\n";
 	// if(aboveTile) {
 

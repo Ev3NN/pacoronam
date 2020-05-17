@@ -8,6 +8,8 @@
 #include "Grid.hpp"
 #include "Player.hpp"
 #include "Monster.hpp"
+#include "Score.hpp"
+#include "Text.hpp"
 
 // Main class
 class Game {
@@ -16,7 +18,7 @@ class Game {
 		/* --- PRIVATE DATA MEMBERS --- */
 
 		// Window
-		sf::RenderWindow* window;
+		std::shared_ptr<sf::RenderWindow> window;
 
 		// Grid
 		std::shared_ptr<Grid> grid;
@@ -24,7 +26,17 @@ class Game {
 		// Characters
 		std::shared_ptr<Player> player;
 		std::map<string, std::shared_ptr<Monster>> monsters;
-		
+
+		// Score
+		std::shared_ptr<Score> score;
+
+		// Text
+		std::unique_ptr<Text> text;
+
+		sf::Text mid_text;
+
+		sf::Font font;
+				
 		/* --- PRIVATE FUNCTIONS --- */
 		
 		// Initialises the window its settings
@@ -33,11 +45,17 @@ class Game {
 		// Initialises the whole grid
 		void init_grid();	
 
+		// Initialises the score
+		void init_score();	
+
 		// Initialises the player (Pac-Man)
 		void init_player();
 
 		// Initialises the foor monsters
 		void init_monsters();
+
+		// Write Ready?! before game start
+		void init_text();
 
 		// Notifies the program of a triggered event
 		void update_poll_events();
@@ -59,7 +77,6 @@ class Game {
 
 		// Constructors & Destructor
 		Game();
-		~Game();
 		
 		// Launches the main loop
 		void run();

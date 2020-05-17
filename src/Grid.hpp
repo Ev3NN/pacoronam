@@ -20,11 +20,12 @@ class Grid {
 
 		// Visual apperance
 		sf::Texture texture;
+		sf::RenderTexture canvas;
+		sf::Sprite sprite;
 		std::vector<TileType> tilesetKeys;
 		sf::VertexArray vertices;
 
 		// Map
-
 
 
 		std::shared_ptr<Tile> map[GRID_ROWS][GRID_COLS];
@@ -34,6 +35,8 @@ class Grid {
 
 		// Initialises the texture. Returns false if an error occured
 		bool init_std_texture();
+
+		void init_canvas();
 
 		// Initialises the texture in DEBUG mode. Returns false if an error occured
 		bool init_debug_texture();

@@ -11,7 +11,8 @@
 #include "Grid.hpp"
 #include "Player.hpp"
 
-enum class Mode {CHASE, SCATTER, PANIC};
+enum class Mode {CHASE, SCATTER, PANIC, GHOST};
+enum class PatternMode {CHASE, SCATTER};
 
 // Derived class representing a specific monster
 class Monster : public Character {
@@ -24,22 +25,20 @@ class Monster : public Character {
 		bool isDead;
 
 		// Behaviours
-		Mode patternMode;
 		Mode mode;
-
+		static PatternMode patternMode;
+		
 		// Local timers
-		int patternModeCooldown;
 		uint startCountdown;
 
 		// Global timers
-		static uint panicCooldown;
+		static uint patternCooldown;
 		static uint secTimer;
 		static uint dsecTimer;
 	
 		// Map
 		std::shared_ptr<Player> pacman;
 		Tile target;
-		bool hasTarget;
 
 		// Direction
 		bool mustCheckUTurn;
@@ -74,10 +73,9 @@ class Monster : public Character {
 
 
 
-		void update_pattern_mode();
-
 		void update_panic();
 
+		void update_mode();
 
 
 
@@ -187,7 +185,7 @@ class Monster : public Character {
 
 		static uint get_timer();
 
-		static void set_panic_cooldown();
+		static void update_pattern();
 };
 
 

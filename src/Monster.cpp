@@ -9,7 +9,8 @@
 // static data member initialisation
 uint Monster::dsecTimer = 0;
 uint Monster::secTimer = 0;
-uint Monster::panicCooldown = 0;
+uint Monster::patternCooldown = 9;
+PatternMode Monster::patternMode = PatternMode::SCATTER;
 
 /* --- PRIVATE FUNCTIONS --- */
 
@@ -29,19 +30,13 @@ void Monster::init_variables(std::shared_ptr<Player> pacman, std::shared_ptr<Sco
 	else 
 		mode = Mode::SCATTER;
 		
-	patternMode = mode;
 	isDead = false;
 }
 
 void Monster::init_time(c_string& name) {
-	if(!name.compare("Blinky")) {
-		patternModeCooldown = 39;
-		startCountdown = 0;
-	}
-	else
-		patternModeCooldown = 9;
-
 	startCountdown = 0;
+	panicCooldown = 0;
+
 	if(!name.compare("Inky"))
 		startCountdown = 15;
 	else if(!name.compare("Clyde"))
@@ -107,22 +102,24 @@ void Monster::init_target(c_string& name) {
 		target = grid->get_tile_at(35, 27);
 	else if(!name.compare("Clyde"))
 		target = grid->get_tile_at(35, 0);
-
-	hasTarget = true;
 }
 
 void Monster::update_panic() {
-	if(isDead)
+
+	if(mode == Mode::GHOST)
 		return;
 
-	if(!panicCooldown) {
-		reset_monster_colour();
+	if(!panicCooldown && mode == Mode::PANIC) {
+		mode = (patternMode == PatternMode::CHASE) ? Mode::CHASE : Mode::SCATTER;
+		
 		pacman->set_extending(false);
-		mode = patternMode;
-		movementSpeed = 0.95f * REF_SPEED;
 		score->end_panic();
+
+		reset_monster_colour();
+		movementSpeed = 0.95f * REF_SPEED;
 	}
-	else if(panicCooldown == 1 && dsecTimer == 5)
+
+	else if(panicCooldown == 1 && dsecTimer == 5 && mode == Mode::PANIC)
 		shape->setFillColor(sf::Color::White);
 
 	else if(panicCooldown == 7 && mode != Mode::PANIC) {
@@ -130,15 +127,32 @@ void Monster::update_panic() {
 		movementSpeed = 0.77f * REF_SPEED;
 		make_uturn();
 	}
+
 	else if(panicCooldown > 7) {
 		pacman->set_extending(true);
-		shape->setFillColor(sf::Color::Blue);
+		
 		movementSpeed = 0.77f * REF_SPEED;
+		shape->setFillColor(sf::Color::Blue);
 	}
 		
-
-	else if(panicCooldown && aboveTile && shape->getFillColor() != sf::Color::White)
+	else if(panicCooldown && mode == Mode::PANIC && shape->getFillColor() != sf::Color::White)
 		shape->setFillColor(sf::Color::Blue);
+}
+
+void Monster::update_mode() {
+	// if(patternCooldown)
+	// 	return;
+
+	if(mode == Mode::CHASE && patternMode == PatternMode::SCATTER && !name.compare("Blinky"))
+		return;
+
+	if(mode == Mode::PANIC || mode == Mode::GHOST)
+		return;
+
+	if(patternMode == PatternMode::CHASE)
+		mode = Mode::CHASE;
+	else if(patternMode == PatternMode::SCATTER)
+		mode = Mode::SCATTER;
 }
 
 bool Monster::can_leave_house() {
@@ -149,28 +163,28 @@ bool Monster::can_leave_house() {
 	return false;
 }
 
-void Monster::update_pattern_mode() {
-	if(patternModeCooldown)
-		return;
+// void Monster::update_pattern_mode() {
+// 	if(patternModeCooldown)
+// 		return;
 
-	if(patternMode == Mode::CHASE) {
-		std::cout << "Switching to SCATTER MODE !\n";
+// 	if(patternMode == Mode::CHASE) {
+// 		std::cout << "Switching to SCATTER MODE !\n";
 
-		patternModeCooldown = 9;
-		patternMode = Mode::SCATTER;
-	}
-	else if(patternMode == Mode::SCATTER) {
-		std::cout << "Switching to CHASE MODE !\n";
+// 		patternModeCooldown = 9;
+// 		patternMode = Mode::SCATTER;
+// 	}
+// 	else if(patternMode == Mode::SCATTER) {
+// 		std::cout << "Switching to CHASE MODE !\n";
 
-		patternModeCooldown = 30;
-		patternMode = Mode::CHASE;
-	}
-	else
-		return;
+// 		patternModeCooldown = 30;
+// 		patternMode = Mode::CHASE;
+// 	}
+// 	else
+// 		return;
 
-	if(!isDead)
-		make_uturn();
-}
+// 	if(!isDead)
+// 		make_uturn();
+// }
 
 void Monster::update_start_timer() {
 	if(secTimer)
@@ -178,15 +192,6 @@ void Monster::update_start_timer() {
 
 	if(startCountdown > 0)
 		--startCountdown;
-}
-
-void Monster::update_pattern_timer() {
-
-	if(secTimer)
-		return;
-
-	if(patternModeCooldown > 0)
-		--patternModeCooldown;
 }
 
 void Monster::reset_monster_colour() {
@@ -317,10 +322,6 @@ void Monster::update_target() {
 	if(isDead)
 		return;
 
-	if(mode == Mode::PANIC)
-		hasTarget = false;
-
-	hasTarget = true;
 	update_chase_target();
 
 	update_scatter_target();
@@ -554,6 +555,10 @@ bool Monster::enter_house() {
 		aboveTile = grid->get_tile_at(14, 13);
 
 		isDead = false;
+
+		mode = (patternMode == PatternMode::CHASE) ? Mode::CHASE : Mode::SCATTER;
+		reset_monster_colour();
+		movementSpeed = 0.95f * REF_SPEED;
 		
 		move_forward();
 
@@ -880,17 +885,14 @@ bool Monster::reach_blinky_spawn() {
 
 bool Monster::revive_monster() {
 
-	// std::cout << "revive_monster\n";
-
 	if(reach_blinky_spawn())
 		return true;
 
 	if(enter_house())
 		return true;
 
-	if(leave_house()) {
+	if(leave_house())
 		return true;
-	}
 		
 	return false;
 }
@@ -981,6 +983,8 @@ void Monster::handle_characters_collision() {
 	if(mode == Mode::PANIC) {
 
 		isDead = true;
+		mode = Mode::GHOST;
+
 		make_uturn();
 		movementSpeed = 1.3f * REF_SPEED;
 		shape->setFillColor(sf::Color(0, 0, 255, 127));
@@ -1040,6 +1044,8 @@ void Monster::reset(std::shared_ptr<Grid> grid, std::shared_ptr<Player> pacman, 
 	dsecTimer = 0;
 	secTimer = 0;
 	panicCooldown = 0;
+	patternCooldown = 9;
+	patternMode = PatternMode::SCATTER;
 }
 
 void Monster::update() {
@@ -1048,29 +1054,48 @@ void Monster::update() {
 	if(!pacman->aboveTile)
 		return;
 
-	if(name.compare("Pinky"))
-		return;
-
 	// Inky and Clyde cannot leave the monster house right away
 	if(!can_leave_house()) {
 		update_start_timer();
 		// if(!name.compare("Clyde"))
 		// 	std::cout << "Remaining time: " << startCountdown << "\n";
 		return;
-	} 
+	}
 
 	update_panic();
+	update_mode();
 
-	update_pattern_timer();
+	if(name.compare("Blinky")) {
 
-	update_pattern_mode();
+		if(mode == Mode::CHASE) {
+			std::cout << "Chase: " << patternCooldown << "\n";
+		}
+		else if(mode == Mode::SCATTER)
+			std::cout << "Scatter: " << patternCooldown << "\n";
+		
+		if(mode == Mode::PANIC) {
+			std::cout << "Panic: " << panicCooldown << "\n";
 
-	if(mode == Mode::PANIC)
-		std::cout << name << " Panic: " << panicCooldown << "\n";
-	if(patternMode == Mode::SCATTER)
-		std::cout << name << " Scatter: " << patternModeCooldown << "\n";
-	else if(patternMode == Mode::CHASE)
-		std::cout << name << " Chase: " << patternModeCooldown << "\n";
+			if(patternMode == PatternMode::CHASE)
+				std::cout << "Background - Chase: " << patternCooldown << "\n";
+			if(patternMode == PatternMode::SCATTER)
+				std::cout << "Background - Scatter: " << patternCooldown << "\n";
+		}
+
+		if(mode == Mode::GHOST) {
+			std::cout << "GHOST - Panic: " << panicCooldown << "\n";
+				
+			if(patternMode == PatternMode::CHASE)
+				std::cout << "Background - Chase: " << patternCooldown << "\n";
+			if(patternMode == PatternMode::SCATTER)
+				std::cout << "Background - Scatter: " << patternCooldown << "\n";
+		}
+
+	}
+
+	
+
+
 
 	// Updates the target in function of the current mode
 	update_target();
@@ -1094,12 +1119,31 @@ void Monster::update_timer() {
 
 	if(panicCooldown > 0)
 		--panicCooldown;
+
+	if(patternCooldown > 0)
+		--patternCooldown;
+	
+	update_pattern();
 }
 
 uint Monster::get_timer() {
 	return secTimer;
 }
 
-void Monster::set_panic_cooldown() {
-	panicCooldown += 7;
+void Monster::update_pattern() {
+	if(patternCooldown)
+		return;
+
+	if(patternMode == PatternMode::CHASE) {
+		std::cout << "Switching to SCATTER MODE !\n";
+
+		patternCooldown = 9;
+		patternMode = PatternMode::SCATTER;
+	}
+	else if(patternMode == PatternMode::SCATTER) {
+		std::cout << "Switching to CHASE MODE !\n";
+
+		patternCooldown = 30;
+		patternMode = PatternMode::CHASE;
+	}
 }

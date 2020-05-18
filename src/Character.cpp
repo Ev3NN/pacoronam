@@ -3,6 +3,14 @@
 #include "Character.hpp"
 #include "utils.hpp"
 
+// static data member initialisation
+bool Character::isInfected = false;
+bool Character::isSick = false;
+bool Character::isImmune = false;
+uint Character::frameCount = 0;
+uint Character::secCount = 0;
+uint Character::panicCooldown = 0;
+
 /* --- PROTECTED FUNCTIONS --- */
 
 void Character::init_variables(std::shared_ptr<Grid> grid) {
@@ -190,4 +198,45 @@ Character::Character(std::shared_ptr<Grid> grid, c_string& name) {
 void Character::render(sf::RenderTarget* target) {
 
 	target->draw(*shape);
+}
+
+void Character::get_infected() {
+	if(isImmune)
+		return;
+
+	if(!isInfected && !isSick) {
+		isInfected = true;
+		frameCount = FPS;
+		secCount = 20;
+	}
+
+	if(isSick && isInfected) {
+		isInfected = false;
+		frameCount = FPS;
+		secCount = 10;
+	}
+
+}
+
+void Character::update_timer() {
+	if(isImmune || (!isInfected && !isSick))
+		return;
+
+	--frameCount;
+
+	if(!frameCount) {
+		frameCount = FPS;
+		--secCount;
+		if(!secCount) {
+			if(!isSick) {
+				isSick = true;
+				return;
+			}else {
+				isSick = false;
+				isImmune = true;
+			}
+
+		}
+	}
+	
 }

@@ -1,5 +1,11 @@
 #include <iostream>
+
 #include "Tile.hpp"
+
+// static data member initialisation
+bool Tile::isInfected = false;
+uint Tile::frameCount = 0;
+uint Tile::secCount = 0;
 
 /* --- PROTECTED FUNCTIONS --- */
 
@@ -7,6 +13,9 @@ void Tile::init_variables(c_TileType tileType, c_uint rows, c_uint cols) {
 	this->tileType = tileType;
 	this->rows = rows;
 	this->cols = cols;
+	this->isInfected = false;
+	this->frameCount = 0;
+	this->secCount = 0;
 }
 
 void Tile::init_food() {
@@ -90,4 +99,30 @@ const sf::Vector2f Tile::get_tile_centre() const {
 
 void Tile::render(sf::RenderTarget* target) {
 	food->render(target);
+}
+
+void Tile::get_infected() {
+	isInfected = true;
+	frameCount = FPS;
+	secCount = 6;
+}
+
+bool Tile::get_is_infected() {
+	return isInfected;
+}
+
+void Tile::update_timer() {
+	if(!isInfected)
+		return;
+
+	--frameCount;
+
+	if(!frameCount) {
+		frameCount = FPS;
+		--secCount;
+		if(!secCount){
+			isInfected = false;
+		}
+	}
+	
 }

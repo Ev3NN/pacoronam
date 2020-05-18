@@ -14,6 +14,18 @@ class Character {
 	protected:
 		/* --- PROTECTED DATA MEMBERS --- */
 
+		static bool isInfected;
+		
+		static bool isSick;
+
+		static bool isImmune;
+
+		static uint frameCount;
+		
+		static uint secCount;
+		
+		static uint panicCooldown;
+
 		// Position
 		std::unique_ptr<sf::Shape> shape;
 		float centreX, centreY;
@@ -28,8 +40,6 @@ class Character {
 		// Tile Map
 		std::shared_ptr<Grid> grid;
 		std::shared_ptr<Tile> aboveTile;	
-
-		// Add sickness, immunity, ... fields
 
 		/* --- PROTECTED FUNCTIONS --- */
 
@@ -96,6 +106,12 @@ class Character {
 
 		// Draws the needed data members on the window
 		void render(sf::RenderTarget* target);
+
+		// Start the infection process of a character
+		void get_infected();
+
+		// Update the character timer
+		void update_timer();
 };
 
 #endif // !CHARACTER_HPP

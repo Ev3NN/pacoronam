@@ -267,7 +267,8 @@ void Player::handle_treat() {
 
 void Player::handle_pill() {
 	score->pill_eat();
-	Monster::set_panic_cooldown();
+	panicCooldown+= 7;
+
 }
 
 void Player::eat_food() {
@@ -387,6 +388,7 @@ void Player::update() {
 	
 	move();
 	eat_food();
+	Character::update_timer();
 
 	// std::cout << "In eat food - (4, 2): " << grid->get_tile_at(26, 12)->tileType << "\n";
 	// if(aboveTile) {

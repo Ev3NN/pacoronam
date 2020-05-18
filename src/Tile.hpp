@@ -20,6 +20,12 @@ class Tile {
 		TileType tileType;
 
 		std::shared_ptr<Food> food;
+
+		static bool isInfected;
+		
+		static uint frameCount;
+		
+		static uint secCount;
 		
 		/* --- PRIVATE FUNCTIONS --- */
 
@@ -60,6 +66,15 @@ class Tile {
 
 		// Draws each data member
 		void render(sf::RenderTarget* target);
+
+		// Start the infection process of a tile
+		void get_infected();
+
+		// Update the tile timer 
+		static void update_timer();
+
+		// Get the information whether or not the tile is infected
+		bool get_is_infected();
 	
 	// Keeps the data members and functions private
 	friend class Character;
